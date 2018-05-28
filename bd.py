@@ -2,11 +2,10 @@ import json,datetime,time,csv,sys,random
 import MySQLdb as mariadb
 
 
-def init_db(cursor):
-    cursor.execute(open('schema.sql', mode='r',encoding="utf8").read())
+def init_db():
+    cursor.execute(open('schema.sql', mode='r',encoding="utf8").read()); print("IT WORKS")
 
-
-def import_test_data(cursor):
+def import_test_data():
     cursor.execute("USE social;")
     with open('MOCK_DATA.csv', 'r') as file:
         reader = csv.DictReader(file)
@@ -15,27 +14,41 @@ def import_test_data(cursor):
         #for x in range(50):
         #    cursor.execute("INSERT INTO p_amigos(id_amigo1, id_amigo2) VALUES (%s,%s);", (random.randint(1,1000),random.randint(1,1000)))
     db.commit()
+    print("IMPORTED")
 
 #-----------------------------------------#
 # Operações de Amizade (p_amigos)         #
 #-----------------------------------------#
 def adicionar_amigo(id_amigo1,id_amigo2):
-    par_amigos = sorted([int(id_amigo1), int(id_amigo2)])
-    cursor.execute("INSERT INTO p_amigos(id_amigo1,id_amigo2) VALUES (%s,%s);", (par_amigos[0],par_amigos[1]))
-    db.commit()
+    try:
+        par_amigos = sorted([int(id_amigo1), int(id_amigo2)])
+        cursor.execute("INSERT INTO p_amigos(id_amigo1,id_amigo2) VALUES (%s,%s);", (par_amigos[0],par_amigos[1]))
+        db.commit()
+    except (mariadb.Error, mariadb.Warning) as e:
+        print(e)
+        return None
 
 def remover_amigo(id_amigo1,id_amigo2):
-    par_amigos = sorted([int(id_amigo1), int(id_amigo2)])
-    cursor.execute("DELETE FROM p_amigos WHERE id_amigo1 = %s AND id_amigo2 = %s;", (par_amigos[0],par_amigos[1]))
-    db.commit()
+    try:
+        par_amigos = sorted([int(id_amigo1), int(id_amigo2)])
+        cursor.execute("DELETE FROM p_amigos WHERE id_amigo1 = %s AND id_amigo2 = %s;", (par_amigos[0],par_amigos[1]))
+        db.commit()
+    except (mariadb.Error, mariadb.Warning) as e:
+        print(e)
+        return None
 
 def listar_amigos(id_pessoa):
-    cursor.execute("SELECT * FROM p_amigos WHERE (id_amigo1 LIKE %s OR id_amigo2 LIKE %s);", (int(id_pessoa),int(id_pessoa)))
-    lista = cursor.fetchall()
-    print(lista)
-    db.commit()
+    try:
+        cursor.execute("SELECT * FROM p_amigos WHERE (id_amigo1 LIKE %s OR id_amigo2 LIKE %s);", (int(id_pessoa),int(id_pessoa)))
+        lista = cursor.fetchall()
+        print(lista)
+        db.commit()
+    except (mariadb.Error, mariadb.Warning) as e:
+        print(e)
+        return None    
+
 #-----------------------------------------#
-# Operações de Amizade (p_amigos)         #
+# Operações de Bloqueio (p_bloqueado)     #
 #-----------------------------------------#
 
 
@@ -49,8 +62,8 @@ if __name__ == "__main__":
     
     op = sys.argv[1] if len(sys.argv) >= 2 else 'noop'
     
-    if op == 'initdb': init_db(cursor)
-    if op == 'import': import_test_data(cursor)
+    if op == 'initdb': init_db(); exit()
+    if op == 'import': import_test_data()
 
     cursor.execute("USE social;")  
 
@@ -67,4 +80,5 @@ if __name__ == "__main__":
         adicionar_amigo(9,5)
         adicionar_amigo(9,3)
         adicionar_amigo(8,5)
-    if op == 'lis': listar_amigos(5)
+        remover_amigo(8,5)
+    if op == 'lis': listar_amigos(11)
