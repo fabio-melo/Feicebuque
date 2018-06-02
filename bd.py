@@ -4,22 +4,33 @@ import MySQLdb as mariadb
 import config
 from utils import mussum
 from query import *
+from flask import render_template
+from app import app
 
+#-----------------------------------------#
+# Inicializão DB                          #
+#-----------------------------------------#
 
+def init_db():
+    try:
+        cursor.execute(open('schema.sql', mode='r',encoding="utf8").read())
+        print("Banco de Dados Inicializado")
+    except:
+        print("Erro na Importacao")
 
-
-def init_db(): 
-    cursor.execute(open('schema.sql', mode='r',encoding="utf8").read())
-    print("Banco de Dados Inicializado")
-
-def restartconn():
+def restartconn(init=False):
     if 'db' in globals():
         globals()['db'].close()
-
+        
     db = mariadb.connect(**config.DATABASE_CONFIG)
     cursor = db.cursor()
-    return db, cursor
+    if not init:
+        cursor.execute("USE social;")
 
+    return db, cursor
+#-----------------------------------------#
+# TESTES                                  #
+#-----------------------------------------#
 def import_test_data():
     cursor.execute("USE social;")
     with open('MOCK_DATA.csv', 'r') as file:
@@ -36,7 +47,7 @@ def import_test_data():
 
 def import_test_publications(qtdpub=1, qtdpessoa=5):
     for _ in range(qtdpub):
-        escrever_publicacao(random.randint(1,qtdpessoa), mussum())
+        escrever_publicacao(random.randint(1,qtdpessoa), random.randint(1,qtdpessoa), mussum())
 
 #-----------------------------------------#
 # (pessoas)                               #
@@ -81,7 +92,8 @@ def listar_amigos(id_pessoa):
         cursor.execute(DB_LISTAR_AMIGOS, (int(id_pessoa),int(id_pessoa)))
         lista = cursor.fetchall()
         db.commit()
-        return lista
+        lista_tmp = [list(x) for x in lista]
+        return lista_tmp
     except:
         print("ERRO Listando Amigos")
         return None    
@@ -112,7 +124,8 @@ def listar_bloqueios(id_pessoa):
         cursor.execute(DB_LISTAR_BLOQUEIOS, (int(id_pessoa),int(id_pessoa)))
         lista = cursor.fetchall()
         db.commit()
-        return lista
+        lista_tmp = [list(x) for x in lista]
+        return lista_tmp  
     except:
         print("ERRO Listando Bloqueios")
         return None    
@@ -122,9 +135,9 @@ def listar_bloqueios(id_pessoa):
 #-----------------------------------------#
 
 
-def escrever_publicacao(id_pessoa, texto):
+def escrever_publicacao(id_pessoa_mural, id_pessoa_postador, texto, tipo='publico'):
     try:
-        cursor.execute(DB_ESCREVER_PUBLICACAO, (int(id_pessoa), texto))
+        cursor.execute(DB_ESCREVER_PUBLICACAO, (int(id_pessoa_mural), int(id_pessoa_postador), texto, tipo))
         db.commit()
     except:
         print("ERRO Escrevendo Publicacao")
@@ -132,18 +145,39 @@ def escrever_publicacao(id_pessoa, texto):
 
 def excluir_publicacao(id_publicacao):
     try:
-        cursor.execute(DB_REMOVER_PUBLICACAO, id_publicacao)
+        cursor.execute(DB_REMOVER_PUBLICACAO, (int(id_publicacao),))
         db.commit()
     except:
         print("erro excluindo publicacao")
 
+def listar_publicacoes(tipo='publico'):
+    # se nenhum argumento for enviado, mostra a linha publica, caso contrario, pega o numero (ID) do mural
+    try:
+        if tipo == 'publico':
+            cursor.execute(DB_LISTAR_PUBLICACOES_PUBLICAS)
+            lista = cursor.fetchall()
+        else:
+            cursor.execute(DB_LISTAR_PUBLICACOES_MURAL, (int(tipo),))
+            lista = cursor.fetchall()
+        db.commit()
+        lista_tmp = [list(x) for x in lista]
+        return lista_tmp       
+    except mariadb.Error as e:
+        print(e)
+        print("erro listando publicacoes")
+        return None
+ 
 
-
-
+@app.route('/')
+def homepage():
+    db, cursor = restartconn()
+    cursor.execute("USE social;") 
+    postagens = listar_publicacoes(1)
+    print(postagens)
+    return render_template('feed.html', entries=postagens)
 
 
 if __name__ == "__main__":
-    db, cursor = restartconn()
 
     if 'initdb' in argv: init_db(); db, cursor = restartconn()
     if 'import' in argv: import_test_data(); db, cursor = restartconn()
@@ -176,3 +210,7 @@ if __name__ == "__main__":
     if 'bla' in argv:
         cursor.execute("USE social;") 
         excluir_usuario('1')
+    if 'idk' in argv:
+        cursor.execute("USE social;") 
+        print(listar_publicacoes(1))
+        
