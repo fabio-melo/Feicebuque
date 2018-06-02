@@ -2,7 +2,7 @@ import json,datetime,time,csv,random
 from sys import argv
 import MySQLdb as mariadb
 import config
-from mussum import mussunificador
+from utils import mussum
 from query import *
 
 
@@ -36,7 +36,7 @@ def import_test_data():
 
 def import_test_publications(qtdpub=1, qtdpessoa=5):
     for _ in range(qtdpub):
-        escrever_publicacao(random.randint(1,qtdpessoa), mussunificador())
+        escrever_publicacao(random.randint(1,qtdpessoa), mussum())
 
 #-----------------------------------------#
 # (pessoas)                               #
