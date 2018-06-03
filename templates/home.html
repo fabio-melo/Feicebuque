@@ -25,20 +25,15 @@
                 </div>
 
                 <ul class="list-unstyled components">
-                    <li class="active">
-                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">
+                    <li>
+                        <a href="{{ url_for('homepage') }}">
                             <i class="glyphicon glyphicon-home"></i>
                             Home
                         </a>
-                        <ul class="collapse list-unstyled" id="homeSubmenu">
-                            <li><a href="/">Home</a></li>
-                            <li><a href="#">Home 2</a></li>
-                            <li><a href="#">Home 3</a></li>
-                        </ul>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="glyphicon glyphicon-log-in"></i>
+                        <a href="{{ url_for('page_amigos') }}">
+                            <i class="glyphicon glyphicon-user"></i>
                             Amigos
                         </a>
                         <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">
@@ -90,10 +85,10 @@
                         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                             <ul class="nav navbar-nav navbar-right">
                                 {% if session.logged_in %}
-                                <li><a href="sair">Sair</a></li>
+                                <li><a href="{{ url_for('logout') }}">Sair</a></li>
                                 {% else %}
-                                <li><a href="cadastro">Cadastre-se</a></li>
-                                <li><a href="login"><b>Entrar</b></a></li>
+                                <li><a href="{{ url_for('cadastro') }}">Cadastre-se</a></li>
+                                <li><a href="{{ url_for('login') }}"><b>Entrar</b></a></li>
                                 {% endif %}
                             </ul>
                         </div>

@@ -5,6 +5,8 @@
 DB_CRIAR_USUARIO = "INSERT INTO pessoas(nome, sobrenome, email, genero, senha, bio) VALUES (%s,%s,%s,%s,%s,%s);"
 DB_EXCLUIR_USUARIO = "DELETE FROM pessoas WHERE id_pessoa = %s;"
 DB_PROCURAR_USUARIO = "SELECT * FROM pessoas WHERE email = %s;"
+DB_PROCURAR_USUARIO_POR_ID = "SELECT * FROM pessoas WHERE id_pessoa = %s;"
+DB_LISTAR_USUARIOS = "SELECT id_pessoa,nome,sobrenome FROM pessoas;"
 # (p_pedido_amizade)
 DB_SOLICITAR_AMIGO  = "INSERT INTO p_pedido_amizade(id_solicitante,id_solicitado) VALUES (%s,%s);"
 DB_REMOVER_PEDIDO = "DELETE FROM p_pedido_amizade WHERE id_pessoa1 = %s AND id_pessoa2 = %s;"
@@ -25,7 +27,7 @@ DB_ESCREVER_PUBLICACAO = "INSERT INTO p_publicacoes(id_pessoa_mural, id_pessoa_p
 DB_REMOVER_PUBLICACAO = "DELETE FROM p_publicacoes WHERE id_publicacao = %s;"
 
 DB_LISTAR_PUBLICACOES_PUBLICAS = \
-    "SELECT p_publicacoes.id_publicacao, mural.nome, mural.sobrenome, postador.nome, postador.sobrenome, p_publicacoes.texto_publicacao, p_publicacoes.data_publicacao \
+    "SELECT p_publicacoes.id_publicacao, mural.nome, mural.sobrenome, postador.nome, postador.sobrenome, p_publicacoes.texto_publicacao, p_publicacoes.data_publicacao, p_publicacoes.id_pessoa_mural, p_publicacoes.id_pessoa_postador \
     FROM p_publicacoes \
     INNER JOIN pessoas mural ON mural.id_pessoa = p_publicacoes.id_pessoa_mural \
     INNER JOIN pessoas postador ON postador.id_pessoa = p_publicacoes.id_pessoa_postador \
@@ -33,7 +35,7 @@ DB_LISTAR_PUBLICACOES_PUBLICAS = \
     ORDER BY p_publicacoes.data_publicacao DESC;"
 
 DB_LISTAR_PUBLICACOES_MURAL = \
-    "SELECT p_publicacoes.id_publicacao, mural.nome, mural.sobrenome, postador.nome, postador.sobrenome, p_publicacoes.texto_publicacao, p_publicacoes.data_publicacao \
+    "SELECT p_publicacoes.id_publicacao, mural.nome, mural.sobrenome, postador.nome, postador.sobrenome, p_publicacoes.texto_publicacao, p_publicacoes.data_publicacao, p_publicacoes.id_pessoa_mural, p_publicacoes.id_pessoa_postador \
     FROM p_publicacoes \
     INNER JOIN pessoas mural ON mural.id_pessoa = p_publicacoes.id_pessoa_mural \
     INNER JOIN pessoas postador ON postador.id_pessoa = p_publicacoes.id_pessoa_postador \

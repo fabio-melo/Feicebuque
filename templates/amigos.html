@@ -1,0 +1,21 @@
+{% extends "home.html" %}
+{% block body %}
+
+<div class="col">
+        {% if session.logged_in %}
+          <h1>Todos os meus Amigos</h1>
+        {% else %}
+          <h1>Pessoas nesta rede social</h1>
+        {% endif %}
+        <ul class=list-group list-group>
+                <li class="list-group-item"><h3 class=display-4>
+                {% for amg in amigos %}
+                  <a href="{{ url_for('perfil', idusuario=amg[0]) }}">{{ amg[1] }} {{ amg[2] }}</a> <br><br>
+                    {% else %}
+                <li class="list-group-item"><em>Não há pessoas aqui, OMG!</em>
+                {% endfor %} </h3>
+    
+
+        </div>
+
+{% endblock %}
