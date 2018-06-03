@@ -19,12 +19,11 @@ def init_db():
         _, cursor = restartconn('init')
         cursor.execute(open('schema.sql', mode='r',encoding="utf8").read())
         print("Banco de Dados Inicializado")
-    except:
+    except Exception as e:
         print("Erro na Importacao")
+        print(e)
 
 def restartconn(init=False):
-    if 'db' in globals():
-        globals()['db'].close()
         
     db = mariadb.connect(**config.DATABASE_CONFIG)
     cursor = db.cursor()
@@ -36,21 +35,34 @@ def restartconn(init=False):
 # TESTES                                  #
 #-----------------------------------------#
 def import_test_data():
+    db, cursor = restartconn()
     with open('MOCK_DATA.csv', 'r') as file:
         reader = csv.DictReader(file)
         for x in reader:
-            cursor.execute(DB_CRIAR_USUARIO, (x['first_name'],x['last_name'],x['email'],x['gender'],x['password'],x['bio']) )
-        #for x in range(50):
-        #    for y in range(random.randint(1,10)): 
-        #        cursor.execute(DB_ADICIONAR_AMIGO, (int(x), int(y+1)))
+            cursor.execute(DB_CRIAR_USUARIO, (x['first_name'],x['last_name'],x['email'],x['gender'],x['password'],x['bio']))
     db.commit()
-    import_test_publications(qtdpub=200,qtdpessoa=100)
+    for i in range(1,500):
+            gerar_amigos(i,db,cursor)
+    for _ in range(3):
+        for i in range(200):
+            escrever_publicacao(i, random.randint(1,500), mussum(),cursor,db, tipo='publico')
+        for i in range(200):
+            escrever_publicacao(i, random.randint(1,500), mussum(),cursor,db, tipo='amigos')      
     print("Dados de Teste Importados")
 
 
-def import_test_publications(qtdpub=1, qtdpessoa=5):
-    for _ in range(qtdpub):
-        escrever_publicacao(random.randint(1,qtdpessoa), random.randint(1,qtdpessoa), mussum(),cursor,db)
+ 
+
+def gerar_amigos(idpessoa, db, cursor,qtdamigos=10, totalpessoasdb=500):
+    possiveis = [i for i in range(totalpessoasdb)]
+    possiveis.remove(idpessoa)
+    random.shuffle(possiveis)
+    x = 0
+    while x < qtdamigos:
+        add = possiveis.pop(0)    
+        adicionar_amigo(idpessoa,add,cursor,db)
+        x += 1
+        
 
 #-----------------------------------------#
 # (pessoas)                               #
@@ -59,16 +71,19 @@ def criar_usuario(db, cursor, nome, sobrenome='',email='', genero=None, senha=''
     try:
         cursor.execute(DB_CRIAR_USUARIO, (nome, sobrenome, email, genero, senha, bio))
         db.commit()
-    except:
+    except Exception as e: 
         print("ERRO CRIANDO USUÁRIO")
+        print(e)
         return None
 
 def excluir_usuario(id_pessoa):
     try:
         cursor.execute(DB_EXCLUIR_USUARIO, (id_pessoa))
         db.commit()
-    except:
+    except Exception as e: 
         print("ERRO EXCLUINDO USUÁRIO")
+        print(e)
+        return None
 
 def procurar_usuario(cursor, email):
     cursor.execute(DB_PROCURAR_USUARIO, (email,))
@@ -85,7 +100,8 @@ def adicionar_amigo(id_pessoa1,id_pessoa2,cursor,db):
         par_amigos = sorted([int(id_pessoa1), int(id_pessoa2)])
         cursor.execute(DB_ADICIONAR_AMIGO, (par_amigos[0],par_amigos[1]))
         db.commit()
-    except:
+    except Exception as e:
+        print(e)
         return None
 
 def remover_amigo(id_pessoa1,id_pessoa2,cursor,db):
@@ -93,7 +109,8 @@ def remover_amigo(id_pessoa1,id_pessoa2,cursor,db):
         par_amigos = sorted([int(id_pessoa1), int(id_pessoa2)])
         cursor.execute(DB_REMOVER_AMIGO, (par_amigos[0],par_amigos[1]))
         db.commit()
-    except:
+    except Exception as e: 
+        print(e)
         return None
 
 def listar_amigos(id_pessoa,cursor):
@@ -102,8 +119,9 @@ def listar_amigos(id_pessoa,cursor):
         lista = cursor.fetchall()
         lista_tmp = [list(x) for x in lista]
         return lista_tmp
-    except:
+    except Exception as e: 
         print("ERRO Listando Amigos")
+        print(e)
         return None    
 
 #-----------------------------------------#
@@ -116,7 +134,8 @@ def bloquear_pessoa(id_pessoa1,id_pessoa2,cursor,db):
         cursor.execute(DB_BLOQUEAR_PESSOA, (par_pessoas[0],par_pessoas[1]))
         cursor.execute(DB_REMOVER_AMIGO, (par_pessoas[0],par_pessoas[1]))
         db.commit()
-    except:
+    except Exception as e: 
+        print(e)
         return None
 
 def desbloquear_pessoa(id_pessoa1,id_pessoa2,cursor,db):
@@ -124,7 +143,8 @@ def desbloquear_pessoa(id_pessoa1,id_pessoa2,cursor,db):
         par_pessoas = sorted([int(id_pessoa1), int(id_pessoa2)])
         cursor.execute(DB_DESBLOQUEAR_PESSOA, (par_pessoas[0],par_pessoas[1]))
         db.commit()
-    except:
+    except Exception as e: 
+        print(e)
         return None
 
 def listar_bloqueios(id_pessoa,cursor,db):
@@ -134,8 +154,9 @@ def listar_bloqueios(id_pessoa,cursor,db):
         db.commit()
         lista_tmp = [list(x) for x in lista]
         return lista_tmp  
-    except:
+    except Exception as e: 
         print("ERRO Listando Bloqueios")
+        print(e)
         return None    
 
 #-----------------------------------------#
@@ -147,7 +168,8 @@ def escrever_publicacao(id_pessoa_mural, id_pessoa_postador, texto, cursor, db, 
     try:
         cursor.execute(DB_ESCREVER_PUBLICACAO, (int(id_pessoa_mural), int(id_pessoa_postador), texto, tipo))
         db.commit()
-    except:
+    except Exception as e:
+        print(e)
         print("ERRO Escrevendo Publicacao")
         return None
 
@@ -155,7 +177,8 @@ def excluir_publicacao(id_publicacao, cursor,db):
     try:
         cursor.execute(DB_REMOVER_PUBLICACAO, (int(id_publicacao),))
         db.commit()
-    except:
+    except Exception as e:
+        print(e) 
         print("erro excluindo publicacao")
 
 def listar_publicacoes(cursor, tipo='publico'):
@@ -169,21 +192,25 @@ def listar_publicacoes(cursor, tipo='publico'):
             lista = cursor.fetchall()
         lista_tmp = [list(x) for x in lista]
         return lista_tmp       
-    except mariadb.Error as e:
+    except Exception as e: 
         print(e)
         print("erro listando publicacoes")
         return None
  
 
-@app.route('/')
+@app.route('/',methods=['GET', 'POST'])
 def homepage():
-    db, cursor = restartconn()
-    postagens = listar_publicacoes(cursor=cursor, tipo='publico')
+    _, cursor = restartconn()
+    postagens = []
+    if session and session['logged_in']:
+        postagens = listar_publicacoes(cursor, tipo=session['userid'])
+    else:
+        postagens = listar_publicacoes(cursor=cursor, tipo='publico')
     return render_template('feed.html', entries=postagens)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    db, cursor = restartconn()
+    _, cursor = restartconn()
     error = None
     if request.method == 'POST':
         usernam = procurar_usuario(cursor,request.form['email'])
@@ -205,9 +232,9 @@ def login():
             error = 'Usuario não existe'
     return render_template('login.html', error=error)
 
-@app.route('/logout')
+@app.route('/sair')
 def logout():
-    session.pop('logged_in', None)
+    session['logged_in'] = False
     flash('Saiu')
     return redirect(url_for('homepage'))
 
@@ -221,13 +248,22 @@ def cadastro():
         if usernam:
             error = "usuário já existe"
         else:
-            criar_usuario(db, cursor, request.form['nome'],request.form['sobrenome'],request.form['email'],request.form['genero'],request.form['password'])
+            criar_usuario(db, cursor, request.form['nome'],request.form['sobrenome'],request.form['email'],request.form['genero'],request.form['password'],request.form['bio'])
 
             flash('Conta Criada! Bem vindo!')
+            session['logged_in'] = True
+            session['firstname'] = request.form['nome']
+            session['lastname'] = request.form['sobrenome']
+            session['email'] = request.form['email']
+            session['password'] = request.form['password']
+            session['gender'] = request.form['genero']
+            session['bio'] = request.form['bio']
+
+
             return redirect(url_for('homepage'))
     return render_template('cadastrar.html', error=error)
 
-
+'''
 @app.route('/novo', methods=['POST'])
 def add_entry():
     if not session.get('logged_in'):
@@ -238,23 +274,18 @@ def add_entry():
     db.commit()
     flash('New entry was successfully posted')
     return redirect(url_for('show_entries'))
-
-@app.route('/usuario/<idusuario>', methods=['GET', 'POST'])
-def perfil():
+'''
+@app.route('/perfil/<idusuario>', methods=['GET', 'POST'])
+def perfil(idusuario):
     pass
 
 
 
 if __name__ == "__main__":
 
-    if 'initdb' in argv: init_db(); db, cursor = restartconn()
-    if 'import' in argv: import_test_data(); db, cursor = restartconn()
+    if 'initdb' in argv: init_db()
+    if 'import' in argv: import_test_data()
 
     # 
     db, cursor = restartconn()
  
-    if 'w' in argv:
-        user = procurar_usuario(cursor, "slibri2@chron.com")
-        print(user)
-        print(user[0][3])
-    

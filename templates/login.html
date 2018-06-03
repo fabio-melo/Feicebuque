@@ -1,5 +1,6 @@
 {% extends "home.html" %}
 {% block body %}
+  
   <h2>Login</h2>
   {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
   <form action="{{ url_for('login') }}" method=post>
@@ -11,6 +12,6 @@
       <dd><input type=submit value=Login>
     </dl>
   </form>
-  <li role="presentation"><a href="cadastro">Não possui conta? Cadastre-se</a>
+  <a href="cadastro">Não possui conta? Cadastre-se</a>
     
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends "home.html" %}
 {% block body %}
+
   <h2>Cadastre-se</h2>
   {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
   <form action="{{ url_for('cadastro') }}" method=post>
@@ -26,6 +27,7 @@
       <dd><input type=submit value="Criar Conta">
     </dl>
   </form>
+
   <li role="presentation"><a href="login">Já possui conta? Faça Login</a>
 
 {% endblock %}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <title>Feicebuque</title>
+ 
+ 
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.css') }}">
+ 
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='jumbotron-narrow.css') }}">
+ 
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='login.css') }}">
+
+</head>
+ 
+<body>
+ 
+    <div class="container">
+        <div class="header">
+            <nav>
+                <ul class="nav nav-pills pull-right">
+
+                    <li role="presentation" class="active"><a href="/">Home</a>
+                    </li>
+                    {% if session.logged_in %}
+                    <li role="presentation"><a href="logout">Sair</a>
+                    </li>
+                    {% else %}
+                    <li role="presentation"><a href="login">Entrar</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <h3 class="text-muted">Feicebuque</h3>
+        </div>
+ 
+
+        <div class="thing">
+            {% block body %}{% endblock %}
+        </div>
+
+        <footer class="footer">
+            <p>&copy; Fabscorp 2018</p>
+        </footer>
+ 
+    </div>
+</body>
+ 
+</html>

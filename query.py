@@ -39,3 +39,11 @@ DB_LISTAR_PUBLICACOES_MURAL = \
     INNER JOIN pessoas postador ON postador.id_pessoa = p_publicacoes.id_pessoa_postador \
     WHERE (p_publicacoes.id_pessoa_mural LIKE %s)\
     ORDER BY p_publicacoes.data_publicacao DESC;"
+
+DB_LISTAR_PUBLICACOES_LINHA_DO_TEMPO = \
+    "SELECT p_publicacoes.id_publicacao, mural.nome, mural.sobrenome, postador.nome, postador.sobrenome, p_publicacoes.texto_publicacao, p_publicacoes.data_publicacao \
+    FROM p_publicacoes \
+    INNER JOIN pessoas mural ON mural.id_pessoa = p_publicacoes.id_pessoa_mural \
+    INNER JOIN pessoas postador ON postador.id_pessoa = p_publicacoes.id_pessoa_postador \
+    WHERE (p_publicacoes.id_pessoa_mural LIKE %s)\
+    ORDER BY p_publicacoes.data_publicacao DESC;"
