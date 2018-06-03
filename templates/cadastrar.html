@@ -1,0 +1,31 @@
+{% extends "home.html" %}
+{% block body %}
+  <h2>Cadastre-se</h2>
+  {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+  <form action="{{ url_for('cadastro') }}" method=post>
+    <dl>
+      <dt>Nome:
+      <dd><input type=text name=nome>
+      <dt>Sobrenome:
+      <dd><input type=text name=sobrenome>
+      <dt>E-mail:
+      <dd><input type=text name=email> <p>
+      <dt>Genero:
+          <select name="genero">
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+              <option value="Outro">Outro</option>           
+          </select>
+      <p>
+      <dt>Biografia:</dt>
+      <dd><input type=text name=bio>
+      <dt>Senha:
+      <dd><input type=password name=password>
+      <dt>Confirmar Senha:
+      <dd><input type=password name=passwordconfirm>
+      <dd><input type=submit value="Criar Conta">
+    </dl>
+  </form>
+  <li role="presentation"><a href="login">Já possui conta? Faça Login</a>
+
+{% endblock %}

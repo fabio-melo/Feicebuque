@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS pessoas;
 
 CREATE TABLE pessoas(
 	id_pessoa INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	usuario VARCHAR(255) NOT NULL,
 	nome VARCHAR(255) NOT NULL,
 	sobrenome VARCHAR(255) NOT NULL, 
   	email VARCHAR(255) NOT NULL,
@@ -25,7 +26,8 @@ CREATE TABLE pessoas(
 	bio TEXT,
 	foto VARCHAR(255),
 	data_entrada TIMESTAMP NOT NULL,
-	PRIMARY KEY(id_pessoa)
+	PRIMARY KEY(id_pessoa),
+	UNIQUE (usuario)
 );
 
 /* Amigos = Relacionamento ->  Pessoas <-> Pessoas */
@@ -70,12 +72,15 @@ CREATE TABLE p_bloqueio(
 DROP TABLE IF EXISTS p_publicacoes;
 
 CREATE TABLE p_publicacoes(
-	id_publicacao INT UNSIGNED NOT NULL AUTO_INCREMENT, 
-	id_pessoa INT UNSIGNED NOT NULL,
+	id_publicacao INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	id_pessoa_mural INT UNSIGNED NOT NULL,
+	id_pessoa_postador INT UNSIGNED NOT NULL,
 	data_publicacao TIMESTAMP NOT NULL,
-	texto_publicacao TEXT, 
+	texto_publicacao TEXT,
+	tipo_publicacao ENUM('publico','amigos') NOT NULL,
 	PRIMARY KEY(id_publicacao),
-	FOREIGN KEY(id_pessoa) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE
+	FOREIGN KEY(id_pessoa_mural) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE,
+	FOREIGN KEY(id_pessoa_postador) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE
 );
 
 /* Grupos = Entidade */
