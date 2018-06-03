@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Minhas Queries
 # (pessoas)
 DB_CRIAR_USUARIO = "INSERT INTO pessoas(nome, sobrenome, email, genero, senha, bio) VALUES (%s,%s,%s,%s,%s,%s);"

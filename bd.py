@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json,datetime,time,csv,random
 from sys import argv
 import MySQLdb as mariadb

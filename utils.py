@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from random import shuffle
 
 def mussum(tamanhotexto=5):
