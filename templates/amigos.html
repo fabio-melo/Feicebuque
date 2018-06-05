@@ -4,16 +4,26 @@
 <div class="col">
         {% if session.logged_in %}
           <h1>Todos os meus Amigos</h1>
-        {% else %}
+
+          <ul class=list-group list-group>
+              {% for amg in amigos %}
+            <li class="list-group-item">
+            
+              <a href="{{ url_for('perfil', idusuario=amg[0]) }}">{{ amg[1] }} {{ amg[2] }}</a> <br><br></li>
+              {% else %}
+              <li class="list-group-item"><em>Vá fazer amigos, OMG!</em>        </li>
+              {% endfor %}
+              {% endif %}
+            </ul>
           <h1>Pessoas nesta rede social</h1>
-        {% endif %}
+        
         <ul class=list-group list-group>
-                <li class="list-group-item"><h3 class=display-4>
-                {% for amg in amigos %}
-                  <a href="{{ url_for('perfil', idusuario=amg[0]) }}">{{ amg[1] }} {{ amg[2] }}</a> <br><br>
-                    {% else %}
-                <li class="list-group-item"><em>Não há pessoas aqui, OMG!</em>
-                {% endfor %} </h3>
+            {% for amg in todaspessoas %}      
+          <li class="list-group-item list-group-item">
+                
+                 <a href="{{ url_for('perfil', idusuario=amg[0]) }}">{{ amg[1] }} {{ amg[2] }}</a> <br><br>
+</li>
+                {% endfor %} 
     
 
         </div>

@@ -81,6 +81,19 @@ CREATE TABLE p_publicacoes(
 	FOREIGN KEY(id_pessoa_postador) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE
 );
 
+
+CREATE TABLE p_comentarios(
+	id_comentario INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	id_publicacao INT UNSIGNED NOT NULL,
+	id_pessoa_comentario INT UNSIGNED NOT NULL,
+	data_publicacao TIMESTAMP NOT NULL,
+	texto_publicacao TEXT,
+	PRIMARY KEY(id_comentario),
+	FOREIGN KEY(id_publicacao) REFERENCES p_publicacoes(id_publicacao) ON DELETE CASCADE,
+	FOREIGN KEY(id_pessoa_comentario) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE
+);
+
+
 /* Grupos = Entidade */
 
 DROP TABLE IF EXISTS grupos;

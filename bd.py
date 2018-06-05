@@ -132,21 +132,14 @@ def listar_amigos(id_pessoa,cursor):
     try:
         cursor.execute(DB_LISTAR_AMIGOS, (int(id_pessoa),int(id_pessoa)))
         lista = cursor.fetchall()
-        lista_tmp = [list(x) for x in lista]
-        amigos = []
-        for x in lista_tmp:
-            if x[0] != int(id_pessoa):
-                amigos.append(x[0])
-            elif x[1] != int(id_pessoa):
-                amigos.append(x[1])
-        return amigos
+        return [x[0] for x in lista]
     except Exception as e: 
         print("ERRO Listando Amigos")
         print(e)
         return None    
 
 #-----------------------------------------#
-# (p-amigos)                              #
+# (p-bloquear)                            #
 #-----------------------------------------#
 
 def bloquear_pessoa(id_pessoa1,id_pessoa2,cursor,db):
@@ -168,13 +161,11 @@ def desbloquear_pessoa(id_pessoa1,id_pessoa2,cursor,db):
         print(e)
         return None
 
-def listar_bloqueios(id_pessoa,cursor,db):
+def listar_bloqueios(id_pessoa,cursor):
     try:
         cursor.execute(DB_LISTAR_BLOQUEIOS, (int(id_pessoa),int(id_pessoa)))
         lista = cursor.fetchall()
-        db.commit()
-        lista_tmp = [list(x) for x in lista]
-        return lista_tmp  
+        return [list(x) for x in lista] 
     except Exception as e: 
         print("ERRO Listando Bloqueios")
         print(e)
@@ -219,6 +210,45 @@ def listar_publicacoes(cursor, tipo='publico'):
         return None
  
 
+
+#-----------------------------------------#
+# (p_comentarios)                         #
+#-----------------------------------------#
+
+
+def escrever_comentario(id_publicacao, id_pessoa_postador, texto, cursor, db):
+    try:
+        cursor.execute(DB_ESCREVER_COMENTARIO, (int(id_publicacao), int(id_pessoa_postador), texto))
+        db.commit()
+    except Exception as e:
+        print(e)
+        print("ERRO Escrevendo comentario")
+        return None
+
+def excluir_comentario(id_comentario, cursor,db):
+    try:
+        cursor.execute(DB_REMOVER_COMENTARIO, (int(id_comentario),))
+        db.commit()
+    except Exception as e:
+        print(e) 
+        print("erro excluindo comentario")
+
+def listar_comentarios(id_comentario,cursor):
+    # se nenhum argumento for enviado, mostra a linha publica, caso contrario, pega o numero (ID) do mural
+    try:
+        cursor.execute(DB_LISTAR_COMENTARIOS, (int(id_comentario),))
+        lista = cursor.fetchall()
+        return [list(x) for x in lista]     
+    except Exception as e: 
+        print(e)
+        print("erro listando publicacoes")
+        return None
+ 
+
+#-----------------------------------------#
+# FLASK - INTERAÇÃO WEB                   #
+#-----------------------------------------#
+
 @app.route('/',methods=['GET', 'POST'])
 def homepage():
     _, cursor = restartconn()
@@ -261,6 +291,7 @@ def login():
 
 @app.route('/sair')
 def logout():
+    session.clear()
     session['logged_in'] = False
     flash('Saiu')
     return redirect(url_for('homepage'))
@@ -286,7 +317,8 @@ def cadastro():
             session['gender'] = request.form['genero']
             session['bio'] = request.form['bio']
 
-
+            usernam = procurar_usuario(cursor,email=request.form['email'])
+            session['userid'] = usernam[0]
             return redirect(url_for('homepage'))
     return render_template('cadastrar.html', error=error)
 
@@ -318,12 +350,12 @@ def page_amigos():
         for x in amig:
             pes = procurar_usuario(cursor,userid=x)
             amigos.append(pes)
-    else:
-        amigos = listar_usuarios(cursor)
+    
+    todaspessoas = listar_usuarios(cursor)
    
-    return render_template('amigos.html', amigos=amigos)
+    return render_template('amigos.html', amigos=amigos,todaspessoas=todaspessoas)
 
-@app.route('/perfil/<idusuario>', methods=['GET', 'POST'])
+@app.route('/perfil/<idusuario>/', methods=['GET', 'POST'])
 def perfil(idusuario):
     db, cursor = restartconn()
     amig = listar_amigos(idusuario,cursor)
@@ -333,10 +365,69 @@ def perfil(idusuario):
         amigos.append(pes)
     pessoa = procurar_usuario(cursor,userid=int(idusuario))
     postagens = listar_publicacoes(cursor, tipo=int(idusuario))
-    print("bla")
     return render_template('perfil.html', entries=postagens,amigos=amigos, pessoa=pessoa)
 
+@app.route('/publicacao/<idpublicacao>', methods=['GET', 'POST'])
+def page_comentarios(idpublicacao):
+    _, cursor = restartconn()
+    comments = listar_comentarios(idpublicacao,cursor)
+    return render_template('comentarios.html', comentarios=comments)
 
+@app.route('/adicionar_amigo<id_amigo>', methods=['POST'])
+def web_adicionar_amigo(id_amigo):
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = restartconn()
+    adicionar_amigo(session['userid'],id_amigo,cursor,db)
+    flash('Adicionado com Sucesso!')
+    return redirect(url_for('perfil',idusuario=id_amigo))
+
+@app.route('/remover_amigo<id_amigo>', methods=['POST'])
+def web_remover_amigo(id_amigo):
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = restartconn()
+    remover_amigo(session['userid'],id_amigo,cursor,db)
+    flash('Removido com Sucesso!')
+    return redirect(url_for('perfil',idusuario=id_amigo))
+
+
+@app.route('/bloquear_pessoa<id_amigo>', methods=['POST'])
+def web_bloquear_pessoa(id_amigo):
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = restartconn()
+    bloquear_pessoa(session['userid'],id_amigo,cursor,db)
+    flash('Bloqueado com Sucesso!')
+    return redirect(url_for('perfil',idusuario=id_amigo))
+
+
+#-----------------------------------------#
+# JINJA2 - FUNCOES                        #
+#-----------------------------------------#
+@app.context_processor
+def utils():
+    def verificar_amizade(id_amigo):
+        if not session.get('logged_in'):
+            abort(401)
+        _, cursor = restartconn()
+        test_a = cursor.execute(DB_VERIFICAR_AMIZADE,(session['userid'],id_amigo) )
+        test_b = cursor.execute(DB_VERIFICAR_AMIZADE,(id_amigo,session['userid']) )
+        return test_a or test_b
+    def verificar_bloqueio(id_amigo):
+        if not session.get('logged_in'):
+            return None
+        _, cursor = restartconn()
+        test_a = cursor.execute(DB_VERIFICAR_BLOQUEIO,(session['userid'],id_amigo) )
+        test_b = cursor.execute(DB_VERIFICAR_BLOQUEIO,(id_amigo,session['userid']) )
+        return test_a or test_b
+    return dict(verificar_amizade=verificar_amizade,verificar_bloqueio=verificar_bloqueio)
+
+
+
+#-----------------------------------------#
+# IPYTHON E LINHA DE COMANDO              #
+#-----------------------------------------#
 
 
 if __name__ == "__main__":

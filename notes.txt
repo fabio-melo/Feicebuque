@@ -29,3 +29,11 @@
         db, cursor = restartconn()
         print(listar_publicacoes(1))
     '''
+
+
+    
+<div style="background-image:url( {{ url_for('static', filename='photo2.jpg') }}) ;color:white" class="jumbotron">
+    {% if session.logged_in %}
+
+
+SELECT id_pessoa1 FROM p_bloqueio WHERE id_pessoa2 LIKE 2 UNION SELECT id_pessoa2 FROM p_bloqueio WHERE id_pessoa1 LIKE 2;

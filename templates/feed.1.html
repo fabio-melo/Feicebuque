@@ -4,7 +4,7 @@
 <div style="background-image:url( {{ url_for('static', filename='photo2.jpg') }}) ;color:white" class="jumbotron">
     {% if session.logged_in %}
 
-    <h2 class="display-3">Olá {{ session['firstname']}} {{ session['lastname'] }}</h2>
+    <h3 class="display-4">Olá {{ session['firstname']}} {{ session['lastname'] }}</h1>
      
         {% else %}
         

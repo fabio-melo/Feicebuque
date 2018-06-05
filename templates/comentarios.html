@@ -62,8 +62,8 @@
             <h3>Mural</h3><p>
             <ul class=list-group list-group-flush>
             {% for entry in entries %}
-            <li class="list-group-item"><h4  class=display-4><a href="{{ url_for('perfil', idusuario=entry[8]) }}">  {{ entry[3] }} {{ entry[4] }} </a> -  <b>{{ entry[6] }} </b></h4>
-                <h5> ({{ entry[1] }}{{ entry[2] }}) </h5>  {{ entry[5] |safe }}
+            <li class="list-group-item"><h4  class=display-4><a href="{{ url_for('perfil', idusuario=comentarios[8]) }}">  {{ comentarios[3] }} {{ comentarios[4] }} </a> -  <b>{{ comentarios[6] }} </b></h4>
+                <h5> ({{ comentarios[1] }}{{ comentarios[2] }}) </h5>  {{ comentarios[5] |safe }}
             {% else %}
             <li class="list-group-item"><em>Não há postagens novas</em>
             {% endfor %}
