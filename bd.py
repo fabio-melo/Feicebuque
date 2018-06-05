@@ -4,7 +4,7 @@ import json,datetime,time,csv,random
 from sys import argv
 import MySQLdb as mariadb
 import config
-from utils import mussum
+from utils import mussum,coxinha
 from query import *
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
@@ -45,7 +45,7 @@ def import_test_data():
             gerar_amigos(i,db,cursor)
     for _ in range(3):
         for i in range(200):
-            escrever_publicacao(i, random.randint(1,500), mussum(),cursor,db, tipo='publico')
+            escrever_publicacao(i, random.randint(1,500), coxinha(),cursor,db, tipo='publico')
         for i in range(200):
             escrever_publicacao(i, random.randint(1,500), mussum(),cursor,db, tipo='amigos')      
     print("Dados de Teste Importados")
@@ -299,14 +299,14 @@ def add_post():
     flash('Postado com Sucesso!')
     return redirect(url_for('homepage'))
 
-@app.route('/postar_amigo', methods=['POST'])
-def add_post_amigo():
+@app.route('/postar_amigo<id_amigo>', methods=['POST'])
+def add_post_amigo(id_amigo):
     if not session.get('logged_in'):
         abort(401)
     db, cursor = restartconn()
-    escrever_publicacao(request.args['pessoa'][0],session['userid'], request.form['text'],cursor,db, tipo=request.form['privacidade'])
+    escrever_publicacao(id_amigo,session['userid'], request.form['text'],cursor,db, tipo=request.form['privacidade'])
     flash('Postado com Sucesso!')
-    return redirect(url_for('perfil',idusuario=request.args['pessoa'][0]))
+    return redirect(url_for('perfil',idusuario=id_amigo))
 
 
 @app.route('/amigos', methods=['GET', 'POST'])
@@ -334,7 +334,7 @@ def perfil(idusuario):
     pessoa = procurar_usuario(cursor,userid=int(idusuario))
     postagens = listar_publicacoes(cursor, tipo=int(idusuario))
     print("bla")
-    return render_template('feedperfil.html', entries=postagens,amigos=amigos, pessoa=pessoa)
+    return render_template('perfil.html', entries=postagens,amigos=amigos, pessoa=pessoa)
 
 
 

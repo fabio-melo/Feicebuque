@@ -45,7 +45,7 @@
             {% endif %} 
             <ul class=list-group list-group-flush>
             {% for entry in entries %}
-            <li class="list-group-item"><h5  class=display-4>  {{ entry[3] }} {{ entry[4] }}  -  <b>{{ entry[6] }} </b></h5>
+            <li class="list-group-item"><h4  class=display-4><a href="{{ url_for('perfil', idusuario=entry[8]) }}">  {{ entry[3] }} {{ entry[4] }} </a> -  <b>{{ entry[6] }} </b></h4>
                 <h6> ({{ entry[1] }} {{ entry[2] }}) </h6>  {{ entry[5] |safe }}
             {% else %}
             <li class="list-group-item"><h5  class=display-4><em>Não há postagens novas</em></h5>
