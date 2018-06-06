@@ -168,20 +168,20 @@ def add_post():
     flash('Postado com Sucesso!')
     return redirect(url_for('homepage'))
 
-@app.route('/postar_amigo<id_amigo>', methods=['POST'])
+@app.route('/postar_amigo/<id_amigo>', methods=['POST'])
 def add_post_amigo(id_amigo):
     """ POST: Adicionar postagem na pagina de outra pessoa """
     if not session.get('logged_in'):
         abort(401)
     db, cursor = reload_conn()
-    cursor.execute(DB_ESCREVER_PUBLICACAO, (session['id_amigo'],session['userid'], request.form['text'], request.form['privacidade']))
+    cursor.execute(DB_ESCREVER_PUBLICACAO, (id_amigo, session['userid'], request.form['text'], request.form['privacidade']))
     db.commit()
 
     flash('Postado com Sucesso!')
     return redirect(url_for('perfil',idusuario=id_amigo))
 
 
-@app.route('/postar_comentario<id_publicacao>', methods=['POST'])
+@app.route('/postar_comentario/<id_publicacao>', methods=['POST'])
 def add_comentario(id_publicacao):
     """ POST: Comentar uma publicacao """
     if not session.get('logged_in'):
@@ -238,7 +238,7 @@ def web_adicionar_amigo(id_amigo):
     if session['userid'] == id_amigo: 
         abort(401)
 
-    par_amigos = sorted(int(session['userid']), int(id_amigo))
+    par_amigos = sorted((int(session['userid']), int(id_amigo)))
     cursor.execute(DB_ADICIONAR_AMIGO, (par_amigos[0],par_amigos[1]))
     db.commit()
 
@@ -256,7 +256,7 @@ def web_remover_amigo(id_amigo):
     if session['userid'] == id_amigo: 
         abort(401)
 
-    par_amigos = sorted(int(session['userid']), int(id_amigo))
+    par_amigos = sorted((int(session['userid']), int(id_amigo)))
     cursor.execute(DB_REMOVER_AMIGO, (par_amigos[0],par_amigos[1]))
     db.commit()
 
@@ -264,7 +264,7 @@ def web_remover_amigo(id_amigo):
     return redirect(url_for('perfil',idusuario=id_amigo))
 
 
-@app.route('/bloquear_pessoa<id_amigo>', methods=['POST'])
+@app.route('/bloquear_pessoa/<id_amigo>', methods=['POST'])
 def web_bloquear_pessoa(id_amigo):
     """ POST: Bloquear Pessoa """
     if not session.get('logged_in'):
@@ -274,7 +274,7 @@ def web_bloquear_pessoa(id_amigo):
     if session['userid'] == id_amigo: 
         abort(401)
 
-    par_amigos = sorted(int(session['userid']), int(id_amigo))
+    par_amigos = sorted((int(session['userid']), int(id_amigo)))
     cursor.execute(DB_BLOQUEAR_PESSOA, (par_amigos[0],par_amigos[1]))
     cursor.execute(DB_REMOVER_AMIGO, (par_amigos[0],par_amigos[1]))
     db.commit()
@@ -282,6 +282,27 @@ def web_bloquear_pessoa(id_amigo):
 
     flash('Bloqueado com Sucesso!')
     return redirect(url_for('perfil',idusuario=id_amigo))
+
+
+@app.route('/desbloquear_pessoa/<id_amigo>', methods=['POST'])
+def web_desbloquear_pessoa(id_amigo):
+    """ POST: Desloquear Pessoa """
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = reload_conn()
+    
+    if session['userid'] == id_amigo: 
+        abort(401)
+
+    par_amigos = sorted((int(session['userid']), int(id_amigo)))
+    cursor.execute(DB_DESBLOQUEAR_PESSOA, (par_amigos[0],par_amigos[1]))
+    db.commit()
+    
+
+    flash('Desbloqueado com Sucesso!')
+    return redirect(url_for('perfil',idusuario=id_amigo))
+
+
 
 
 
