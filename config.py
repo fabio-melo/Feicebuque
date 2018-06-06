@@ -1,10 +1,14 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+""" config.py: Configurações gerais compartilhadas """
+
+from os import path
+
+DATABASE_CONFIG = {'user':'root', 'password':'@idk'} # Usuário e senha do MariaDB
 
 class Configuration(object):
-    APPLICATION_DIR = os.path.dirname(os.path.realpath(__file__))
+    """ Configurações do Flask e do Jinja2 """
+    APPLICATION_DIR = path.dirname(path.realpath(__file__))
     DEBUG = True
     SECRET_KEY='development key'
-
-DATABASE_CONFIG = {'user':'root', 'password':'@idk'}

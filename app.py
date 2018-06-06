@@ -1,8 +1,14 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Flask
+""" App.py - Instanciador do Aplicativo e Configurações """
 
-from config import Configuration  # import our configuration data.
+from flask import Flask
+from os import path
+from config import Configuration
+
+""" Inicializar o Flask, e carregar as configurações """
 
 app = Flask(__name__)
-app.config.from_object(Configuration)  # use values from our Configuration object.
+app.config.from_object(Configuration) 
+
