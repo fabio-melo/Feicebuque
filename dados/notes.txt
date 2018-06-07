@@ -1,0 +1,45 @@
+   '''    if 'test1' in argv:
+        
+        adicionar_amigo(1,4)
+        adicionar_amigo(1,5)
+        adicionar_amigo(1,6)
+        adicionar_amigo(1,8)
+        adicionar_amigo(2,4)
+        adicionar_amigo(2,5)
+        adicionar_amigo(5,4)
+        adicionar_amigo(6,5)
+        adicionar_amigo(9,10)
+        adicionar_amigo(9,5)
+        adicionar_amigo(9,3)
+        adicionar_amigo(8,5)
+        remover_amigo(8,5)
+        bloquear_pessoa(9,5)
+    
+    if 'tes' in argv: 
+        db, cursor = restartconn()
+        #listar_amigos(1)
+        #escrever_publicacao(1, mussunificador())
+        #escrever_publicacao(2, mussunificador())
+        #criar_usuario(nome="John", genero='Masculino')
+
+    if 'bla' in argv:
+        db, cursor = restartconn() 
+        excluir_usuario('1')
+    if 'idk' in argv:
+        db, cursor = restartconn()
+        print(listar_publicacoes(1))
+    '''
+
+
+    
+<div style="background-image:url( {{ url_for('static', filename='photo2.jpg') }}) ;color:white" class="jumbotron">
+    {% if session.logged_in %}
+
+
+SELECT id_pessoa1 FROM p_bloqueio WHERE id_pessoa2 LIKE 2 UNION SELECT id_pessoa2 FROM p_bloqueio WHERE id_pessoa1 LIKE 2;
+
+cursor.execute(DB_PROCURAR_USUARIO, (request.form['email'],))
+        user = cursor.fetchall()
+        user = list(*zip(*zip(*user)))     
+
+        

@@ -31,6 +31,14 @@
                             Home
                         </a>
                     </li>
+                    {% if session.logged_in %}
+                    <li>
+                        <a href="{{ url_for('perfil', idusuario=session.userid) }}">
+                            <i class="glyphicon glyphicon-link"></i>
+                            Meu Perfil
+                        </a>
+                    </li>
+                    {% endif %}
                     <li>
                         <a href="{{ url_for('page_amigos') }}">
                             <i class="glyphicon glyphicon-user"></i>
@@ -46,12 +54,7 @@
                             <li><a href="#">Page 3</a></li>
                         </ul>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="glyphicon glyphicon-link"></i>
-                            Sobre
-                        </a>
-                    </li>
+
                     <li>
                         <a href="#">
                             <i class="glyphicon glyphicon-paperclip"></i>

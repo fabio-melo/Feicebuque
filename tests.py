@@ -4,7 +4,7 @@ import json,datetime,time,csv,random
 from sys import argv
 import MySQLdb as mariadb
 import config
-from utils import mussum,coxinha
+from utils import lerolero
 from sql import * # pylint: disable=unused-wildcard-import 
 
 
@@ -43,12 +43,12 @@ def import_test_data():
             gerar_amigos(i,db,cursor)
     for _ in range(3):
         for i in range(200):
-            escrever_publicacao(i, random.randint(1,500), mussum(),cursor,db, tipo='publico')
+            escrever_publicacao(i, random.randint(1,500), lerolero(),cursor,db, tipo='publico')
         for i in range(200):
-            escrever_publicacao(i, random.randint(1,500), mussum(),cursor,db, tipo='amigos')      
+            escrever_publicacao(i, random.randint(1,500), lerolero(),cursor,db, tipo='amigos')      
     for _ in range(1,5):
         for x in range(1,1000):
-            escrever_comentario(x,random.randint(1,500),mussum(), cursor,db )
+            escrever_comentario(x,random.randint(1,500),lerolero(), cursor,db )
     
     print("Dados de Teste Importados")
 

@@ -50,7 +50,13 @@
             <ul class=list-group list-group-flush>
             {% for entry in entries %}
             <li class="list-group-item"><h4  class=display-4><a href="{{ url_for('perfil', idusuario=entry[8]) }}">  {{ entry[3] }} {{ entry[4] }} </a> -  <b>{{ entry[6] }} </b></h4>
-                <h6> (@ {{ entry[1] }} {{ entry[2] }})  <a href="{{ url_for('page_comentarios', idpublicacao=entry[0]) }}">Visualizar Comentarios</a> </h6>  {{ entry[5] |safe }}
+                <h6> (@ {{ entry[1] }} {{ entry[2] }}) &nbsp;&nbsp; <a href="{{ url_for('page_comentarios', idpublicacao=entry[0]) }}">Visualizar Comentarios</a> </h6>  {{ entry[5] |safe }}
+            
+                {% if session.logged_in %}
+                <br><br>
+                <form action="{{ url_for('remover_publicacao',idpublicacao=entry[0]) }}" method=post class=add-entry>
+                    <button type="submit" class="btn btn-xs btn-basic">Remover Publicacao</button></form>
+                {% endif %}
 
             {% else %}
             <li class="list-group-item"><h5  class=display-4><em>Não há postagens novas</em></h5>

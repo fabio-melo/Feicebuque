@@ -31,6 +31,7 @@ def homepage():
     """Flask: Carrega a Página Inicial do Sistema """
     _, cursor = reload_conn()
     postagens = []
+    todos_amigos = []
     if session and session['logged_in']:
 
         cursor.execute(DB_LISTAR_PUBLICACOES_MURAL, (int(session['userid']),))
@@ -39,14 +40,18 @@ def homepage():
         cursor.execute(DB_LISTAR_AMIGOS, (session['userid'],session['userid']))
         lista_amigos = cursor.fetchall()
         lista_amigos = list(*zip(*lista_amigos)) # desempacota a tupla de tuplas
-
+        for x in lista_amigos:
+            cursor.execute(DB_PROCURAR_USUARIO_POR_ID, (x,))
+            uma_pessoa = cursor.fetchall()
+            uma_pessoa = list(*zip(*zip(*uma_pessoa)))
+            todos_amigos.append(uma_pessoa)
     else:
         cursor.execute(DB_LISTAR_PUBLICACOES_PUBLICAS)
         postagens = cursor.fetchall()
         cursor.execute(DB_LISTAR_USUARIOS)
         lista_amigos = cursor.fetchall()
 
-    return render_template('feed.html', entries=postagens,amigos=lista_amigos)
+    return render_template('feed.html', entries=postagens,amigos=todos_amigos)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -104,7 +109,7 @@ def cadastro():
         if user:
             error = "usuário já existe"
         else:
-            cursor.execute(DB_CRIAR_USUARIO, (db, cursor, request.form['nome'],\
+            cursor.execute(DB_CRIAR_USUARIO, (request.form['nome'],\
                             request.form['sobrenome'],request.form['email'], \
                             request.form['genero'],request.form['password'], \
                             request.form['bio']))
@@ -174,11 +179,27 @@ def add_post_amigo(id_amigo):
     if not session.get('logged_in'):
         abort(401)
     db, cursor = reload_conn()
-    cursor.execute(DB_ESCREVER_PUBLICACAO, (id_amigo, session['userid'], request.form['text'], request.form['privacidade']))
+    cursor.execute(DB_ESCREVER_PUBLICACAO, (id_amigo, session['userid'], \
+                                            request.form['text'], request.form['privacidade']))
     db.commit()
 
     flash('Postado com Sucesso!')
     return redirect(url_for('perfil',idusuario=id_amigo))
+
+
+@app.route('/remover_publicacao/<idpublicacao>', methods=['POST'])
+def remover_publicacao(idpublicacao):
+    """ POST: Excluir Publicacao """
+
+    if not session.get('logged_in'):
+        abort(401)
+
+    db, cursor = reload_conn()
+    cursor.execute(DB_REMOVER_PUBLICACAO, (idpublicacao,))
+    db.commit()
+
+    flash('Removido com Sucesso!')
+    return redirect(url_for('homepage'))
 
 
 @app.route('/postar_comentario/<id_publicacao>', methods=['POST'])
@@ -187,7 +208,7 @@ def add_comentario(id_publicacao):
     if not session.get('logged_in'):
         abort(401)
     db, cursor = reload_conn()
-    cursor.execute(DB_ESCREVER_COMENTARIO, (session['userid'], request.form['text']))
+    cursor.execute(DB_ESCREVER_COMENTARIO, (id_publicacao, session['userid'], request.form['text']))
     db.commit()
     flash('Postado com Sucesso!')
     return redirect(url_for('page_comentarios',idpublicacao=id_publicacao))
@@ -202,11 +223,11 @@ def page_amigos():
         cursor.execute(DB_LISTAR_AMIGOS, (session['userid'],session['userid']))
         lista_amigos = cursor.fetchall()
         lista_amigos = list(*zip(*lista_amigos)) # desempacota a tupla de tuplas
-        for _ in lista_amigos:
-            cursor.execute(DB_PROCURAR_USUARIO, (request.form['email'],))
-            pes = cursor.fetchall()
-            pes = list(*zip(*zip(*pes)))     
-            amigos.append(pes)
+        for x in lista_amigos:
+            cursor.execute(DB_PROCURAR_USUARIO_POR_ID, (x,))
+            uma_pessoa = cursor.fetchall()
+            uma_pessoa = list(*zip(*zip(*uma_pessoa)))
+            amigos.append(uma_pessoa)
     
     cursor.execute(DB_LISTAR_USUARIOS)
     todaspessoas = cursor.fetchall()
@@ -224,7 +245,11 @@ def page_comentarios(idpublicacao):
     comentarios = cursor.fetchall()
     comentarios = [list(x) for x in comentarios]
 
-    return render_template('comentarios.html', comentarios=comentarios)
+    cursor.execute(DB_PROCURAR_PUBLICACAO, (int(idpublicacao),))
+    publicacao = cursor.fetchall()
+    publicacao = [list(x) for x in publicacao]
+
+    return render_template('comentarios.html', comentarios=comentarios,publicacao=publicacao)
 
 # MÉTODOS DE ESCRITA
 

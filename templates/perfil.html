@@ -4,15 +4,19 @@
 {% if verificar_bloqueio(pessoa[0]) %}
 
 <h1>USUÁRIO BLOQUEADO!!!</h1>
+<br><br><br><br>
+<form action="{{ url_for('web_desbloquear_pessoa',id_amigo=pessoa[0]) }}" method=post class=add-entry>
+    <button type="submit" class="btn btn-sm btn-danger">Desbloquear</button></form>
+
 {% else %}
 
 <div style="background-image:url( {{ url_for('static', filename='photo-bg.jpg') }}) ;color:white" class="jumbotron">
     {% if session.logged_in %}
     <h1 class="display-1">&nbsp;{{ pessoa[1]}} {{ pessoa[2] }}</h1><br>
-    <h4 class="display-1">&nbsp;&nbsp;{{ pessoa[6] }}</h1>
+    <h4 class="display-1">&nbsp;&nbsp;{{ pessoa[6] }}</h4>
     <br>
     {% if session.userid == pessoa[0] %}
-    este eh o seu perfil
+    <b> Meu Perfil </b>
     {% else %}
     {% if verificar_amizade(pessoa[0]) %}
     <form action="{{ url_for('web_remover_amigo',id_amigo=pessoa[0]) }}" method=post class=add-entry>
@@ -34,8 +38,9 @@
 </div>
 
     <div class="row-5">
-        <div class="col-5">
             {% if session.logged_in %}
+        <div class="col-5">
+           
             <form action="{{ url_for('add_post_amigo',id_amigo=pessoa[0]) }}" method=post class=add-entry>
                 <div class="form-group">
                     <label for="exampleInputPassword1">Postagem</label>
@@ -64,7 +69,17 @@
             {% for entry in entries %}
             <li class="list-group-item"><h4  class=display-4><a href="{{ url_for('perfil', idusuario=entry[8]) }}">  {{ entry[3] }} {{ entry[4] }} </a> -  <b>{{ entry[6] }} </b></h4>
                 <h6> {{ entry[0] }} - (@{{ entry[1] }} {{ entry[2] }})  <a href="{{ url_for('page_comentarios', idpublicacao=entry[0]) }}">Visualizar Comentarios</a> </h6>  {{ entry[5] |safe }}
-            {% else %}
+            
+                {% if session.logged_in %}
+                {% if session.userid == pessoa[0] %}
+                <br><br>
+                <form action="{{ url_for('remover_publicacao',idpublicacao=entry[0]) }}" method=post class=add-entry>
+                    <button type="submit" class="btn btn-xs btn-basic">Remover Publicacao</button></form>
+                {% endif %}
+                {% endif %}
+            
+            
+                {% else %}
             <li class="list-group-item"><em>Não há postagens novas</em>
             {% endfor %}
 
