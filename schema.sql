@@ -25,7 +25,8 @@ CREATE TABLE pessoas(
 	bio TEXT,
 	foto VARCHAR(255),
 	data_entrada TIMESTAMP NOT NULL,
-	PRIMARY KEY(id_pessoa)
+	PRIMARY KEY(id_pessoa),
+	UNIQUE(email)
 );
 
 /* Amigos = Relacionamento ->  Pessoas <-> Pessoas */

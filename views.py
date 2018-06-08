@@ -167,7 +167,8 @@ def add_post():
         abort(401)
 
     db, cursor = reload_conn()
-    cursor.execute(DB_ESCREVER_PUBLICACAO, (session['userid'],session['userid'], request.form['text'], request.form['privacidade']))
+    cursor.execute(DB_ESCREVER_PUBLICACAO, (session['userid'],session['userid']\
+                   , request.form['text'], request.form['privacidade']))
     db.commit()
 
     flash('Postado com Sucesso!')
@@ -180,7 +181,8 @@ def add_post_amigo(id_amigo):
         abort(401)
     db, cursor = reload_conn()
     cursor.execute(DB_ESCREVER_PUBLICACAO, (id_amigo, session['userid'], \
-                                            request.form['text'], request.form['privacidade']))
+                                            request.form['text'], \
+                                            request.form['privacidade']))
     db.commit()
 
     flash('Postado com Sucesso!')
@@ -208,7 +210,8 @@ def add_comentario(id_publicacao):
     if not session.get('logged_in'):
         abort(401)
     db, cursor = reload_conn()
-    cursor.execute(DB_ESCREVER_COMENTARIO, (id_publicacao, session['userid'], request.form['text']))
+    cursor.execute(DB_ESCREVER_COMENTARIO, (id_publicacao, session['userid'],\
+                                            request.form['text']))
     db.commit()
     flash('Postado com Sucesso!')
     return redirect(url_for('page_comentarios',idpublicacao=id_publicacao))
