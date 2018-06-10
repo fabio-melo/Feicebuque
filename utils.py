@@ -174,7 +174,7 @@ def lerolero():
             texto.append(tabela[1][randint(0,len(tabela[1])-1)]) 
             texto.append(tabela[2][randint(0,len(tabela[2])-1)])
             texto.append(tabela[3][randint(0,len(tabela[3])-1)]) 
-        texto.append("<br>")
+        texto.append(". ")
 
     return ''.join(texto)
     

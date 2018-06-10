@@ -49,7 +49,7 @@ def homepage():
         cursor.execute(DB_LISTAR_PUBLICACOES_PUBLICAS)
         postagens = cursor.fetchall()
         cursor.execute(DB_LISTAR_USUARIOS)
-        lista_amigos = cursor.fetchall()
+        todos_amigos = cursor.fetchall()
 
     return render_template('feed.html', entries=postagens,amigos=todos_amigos)
 
@@ -352,3 +352,5 @@ def utils():
         test_b = cursor.execute(DB_VERIFICAR_BLOQUEIO,(id_amigo,session['userid']) )
         return test_a or test_b
     return dict(verificar_amizade=verificar_amizade,verificar_bloqueio=verificar_bloqueio)
+
+

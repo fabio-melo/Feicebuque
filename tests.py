@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+#pylint: disable=unused-variable
+
 from IPython import embed
 import json,datetime,time,csv,random
 from sys import argv
 import MySQLdb as mariadb
 import config
-from utils import lerolero
+from utils import lerolero, coxinha, mussum
 from sql import * # pylint: disable=unused-wildcard-import 
 
 
@@ -39,21 +41,21 @@ def import_test_data():
         for x in reader:
             cursor.execute(DB_CRIAR_USUARIO, (x['first_name'],x['last_name'],x['email'],x['gender'],x['password'],x['bio']))
     db.commit()
-    for i in range(1,500):
+    for i in range(1,100):
             gerar_amigos(i,db,cursor)
     for _ in range(3):
-        for i in range(200):
-            escrever_publicacao(i, random.randint(1,500), lerolero(),cursor,db, tipo='publico')
-        for i in range(200):
-            escrever_publicacao(i, random.randint(1,500), lerolero(),cursor,db, tipo='amigos')      
-    for _ in range(1,5):
-        for x in range(1,1000):
-            escrever_comentario(x,random.randint(1,500),lerolero(), cursor,db )
-    
+        for i in range(100):
+            escrever_publicacao(i, random.randint(1,100), lerolero(),cursor,db, tipo='publico')
+        for i in range(100):
+            escrever_publicacao(i, random.randint(1,100), mussum(),cursor,db, tipo='amigos')      
+    for _ in range(5):
+        for x in range(600):
+            escrever_comentario(x,random.randint(1,100),coxinha(), cursor,db )
+    gerar_grupos(cursor,db)
     print("Dados de Teste Importados")
 
 
-def gerar_amigos(idpessoa, db, cursor,qtdamigos=10, totalpessoasdb=500):
+def gerar_amigos(idpessoa, db, cursor,qtdamigos=10, totalpessoasdb=100):
     possiveis = [i for i in range(totalpessoasdb)]
     possiveis.remove(idpessoa)
     random.shuffle(possiveis)
@@ -63,6 +65,36 @@ def gerar_amigos(idpessoa, db, cursor,qtdamigos=10, totalpessoasdb=500):
         adicionar_amigo(idpessoa,add,cursor,db)
         x += 1
         
+def gerar_grupos(cursor,db):
+    cursor.execute(DB_CRIAR_GRUPO,("Eu gosto de Maçã", "Comunidade dedicada aos gostadores de Maçã"))
+    cursor.execute(DB_CRIAR_GRUPO,("Reporter João Pessoa", "O Reporter de Jampa"))
+    cursor.execute(DB_CRIAR_GRUPO,("Video-Games", "para os fãs de video-game"))
+    cursor.execute(DB_CRIAR_GRUPO,("Todos Contra o Futebol", ""))
+    cursor.execute(DB_CRIAR_GRUPO,("A E S T H E T I C ", "para os fãs da estética"))
+    cursor.execute(DB_CRIAR_GRUPO,("Eu odeio acordar cedo (ORKUT OFICIAL)", ""))
+    cursor.execute(DB_CRIAR_GRUPO,("Gatinhos Fofos", ""))
+    cursor.execute(DB_CRIAR_GRUPO,("Brasil 2050", ""))
+    cursor.execute(DB_CRIAR_GRUPO,("Choque de Cultura", ""))
+    cursor.execute(DB_CRIAR_GRUPO,("Sem-Tetos UFPB", ""))
+    cursor.execute(DB_CRIAR_GRUPO,("Sofrência Estudantil", ""))
+
+    db.commit()
+    for x in range(1,11):
+        for _ in range(5):
+            cursor.execute(DB_GRUPO_ESCREVER_PUBLICACAO, (x, random.randint(1,100), mussum()))
+
+    for x in range(1,11):
+        cursor.execute(DB_GRUPO_ADICIONAR_MEMBRO, (x,random.randint(1,10),"Administrador"))
+    
+    for x in range(1,11):
+        for y in range(20):
+            try:
+                cursor.execute(DB_GRUPO_ADICIONAR_MEMBRO, (x,random.randint(1,100), "Comum"))
+            except:
+                continue
+
+    db.commit()
+
 #-----------------------------------------#
 # (pessoas)                               #
 #-----------------------------------------#
@@ -71,8 +103,8 @@ def criar_usuario(db, cursor, nome, sobrenome='',email='', genero=None, senha=''
         cursor.execute(DB_CRIAR_USUARIO, (nome, sobrenome, email, genero, senha, bio))
         db.commit()
     except Exception as e: 
-        print("ERRO CRIANDO USUÁRIO")
-        print(e)
+       # print("ERRO CRIANDO USUÁRIO")
+       # print(e)
         return None
 
 def excluir_usuario(id_pessoa):
@@ -80,8 +112,8 @@ def excluir_usuario(id_pessoa):
         cursor.execute(DB_EXCLUIR_USUARIO, (id_pessoa))
         db.commit()
     except Exception as e: 
-        print("ERRO EXCLUINDO USUÁRIO")
-        print(e)
+       # print("ERRO EXCLUINDO USUÁRIO")
+       # print(e)
         return None
 
 def procurar_usuario(cursor, email=False, userid=False):
@@ -118,7 +150,7 @@ def adicionar_amigo(id_pessoa1,id_pessoa2,cursor,db):
         cursor.execute(DB_ADICIONAR_AMIGO, (par_amigos[0],par_amigos[1]))
         db.commit()
     except Exception as e:
-        print(e)
+        #print(e)
         return None
 
 def remover_amigo(id_pessoa1,id_pessoa2,cursor,db):
@@ -183,8 +215,8 @@ def escrever_publicacao(id_pessoa_mural, id_pessoa_postador, texto, cursor, db, 
         cursor.execute(DB_ESCREVER_PUBLICACAO, (int(id_pessoa_mural), int(id_pessoa_postador), texto, tipo))
         db.commit()
     except Exception as e:
-        print(e)
-        print("ERRO Escrevendo Publicacao")
+        #print(e)
+        #print("ERRO Escrevendo Publicacao")
         return None
 
 def excluir_publicacao(id_publicacao, cursor,db):
@@ -223,8 +255,8 @@ def escrever_comentario(id_publicacao, id_pessoa_postador, texto, cursor, db):
         cursor.execute(DB_ESCREVER_COMENTARIO, (int(id_publicacao), int(id_pessoa_postador), texto))
         db.commit()
     except Exception as e:
-        print(e)
-        print("ERRO Escrevendo comentario")
+       # print(e)
+       # print("ERRO Escrevendo comentario")
         return None
 
 def excluir_comentario(id_comentario, cursor,db):

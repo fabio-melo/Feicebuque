@@ -102,7 +102,9 @@ DROP TABLE IF EXISTS grupos;
 CREATE TABLE grupos(
 	id_grupo INT UNSIGNED NOT NULL AUTO_INCREMENT, 
 	nome_grupo VARCHAR(255),
-	PRIMARY KEY(id_grupo)
+	descricao_grupo TEXT,
+	PRIMARY KEY(id_grupo),
+	UNIQUE(nome_grupo)
 );
 
 /* Membro = RELACIONAMENTO Grupo -> Membro # */
@@ -112,7 +114,7 @@ DROP TABLE IF EXISTS g_membros;
 CREATE TABLE g_membros(
 	id_grupo INT UNSIGNED NOT NULL, 
 	id_pessoa INT UNSIGNED NOT NULL,
-	tipo_membro ENUM('Administrador','Comum') NOT NULL,
+	tipo_membro ENUM('Administrador','Comum','Bloqueado','Solicitado') NOT NULL,
 	PRIMARY KEY(id_pessoa, id_grupo), 
 	FOREIGN KEY(id_pessoa) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE, 
 	FOREIGN KEY(id_grupo) REFERENCES grupos(id_grupo)
@@ -127,7 +129,7 @@ CREATE TABLE g_publicacoes(
 	id_pessoa INT UNSIGNED NOT NULL, 
 	id_grupo INT UNSIGNED NOT NULL, 
 	data_publicacao_grupo TIMESTAMP NOT NULL,
-	Texto TEXT, 
+	texto TEXT, 
 	PRIMARY KEY(id_publicacao), 
 	FOREIGN KEY(id_pessoa) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE,
 	FOREIGN KEY(id_grupo) REFERENCES grupos(id_grupo)
