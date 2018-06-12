@@ -217,9 +217,24 @@ def add_comentario(id_publicacao):
     return redirect(url_for('page_comentarios',idpublicacao=id_publicacao))
 
 
+@app.route('/remover_comentario/<idcomentario>', methods=['POST'])
+def remover_comentario(idcomentario):
+    """ POST: Excluir Publicacao """
+
+    if not session.get('logged_in'):
+        abort(401)
+
+    db, cursor = reload_conn()
+    cursor.execute(DB_REMOVER_COMENTARIO, (idcomentario,))
+    db.commit()
+
+    flash('Removido com Sucesso!')
+    return redirect(url_for('homepage'))
+
+
 @app.route('/amigos', methods=['GET', 'POST'])
 def page_amigos():
-    """ Parte dos Requisitos: Pagina que lista amigos e membros da rede social """
+    """ Parte dos Requisitos: Pagina que lista amigos da rede social """
     _, cursor = reload_conn()
     amigos = []
     if session and session['logged_in']:
@@ -232,11 +247,37 @@ def page_amigos():
             uma_pessoa = list(*zip(*zip(*uma_pessoa)))
             amigos.append(uma_pessoa)
     
+
+   
+    return render_template('amigos.html', amigos=amigos)
+
+
+
+@app.route('/pessoas', methods=['GET', 'POST'])
+def page_pessoas():
+    """ Parte dos Requisitos: Pagina que lista todas as pessoas rede social """
+    _, cursor = reload_conn()
+   
     cursor.execute(DB_LISTAR_USUARIOS)
     todaspessoas = cursor.fetchall()
     todaspessoas = [list(x) for x in todaspessoas]
    
-    return render_template('amigos.html', amigos=amigos,todaspessoas=todaspessoas)
+    return render_template('pessoas.html', todaspessoas=todaspessoas)
+
+
+@app.route('/solicitacoes', methods=['GET', 'POST'])
+def page_solicitacoes_amizade():
+    """ Parte dos Requisitos: Pagina que lista amigos da rede social """
+    _, cursor = reload_conn()
+
+    if session and session['logged_in']:
+        cursor.execute(DB_LISTAR_PEDIDO_SOLICITADO, (session['userid'],))
+        recebido = cursor.fetchall()
+        cursor.execute(DB_LISTAR_PEDIDO_SOLICITANTE, (session['userid'],))
+        enviado = cursor.fetchall()
+    
+    
+    return render_template('a_solicitacoes.html', recebido=recebido, enviado=enviado)
 
 
 @app.route('/comentarios/<idpublicacao>', methods=['GET', 'POST'])
@@ -256,7 +297,7 @@ def page_comentarios(idpublicacao):
 
 # MÉTODOS DE ESCRITA
 
-@app.route('/adicionar_amigo<id_amigo>', methods=['POST'])
+@app.route('/adicionar_amigo/<id_amigo>', methods=['POST','GET'])
 def web_adicionar_amigo(id_amigo):
     """ POST: Adicionar Amigo """
     if not session.get('logged_in'):
@@ -265,7 +306,7 @@ def web_adicionar_amigo(id_amigo):
 
     if session['userid'] == id_amigo: 
         abort(401)
-
+    cursor.execute(DB_REMOVER_PEDIDO, (id_amigo,session['userid']))
     par_amigos = sorted((int(session['userid']), int(id_amigo)))
     cursor.execute(DB_ADICIONAR_AMIGO, (par_amigos[0],par_amigos[1]))
     db.commit()
@@ -273,7 +314,63 @@ def web_adicionar_amigo(id_amigo):
     flash('Adicionado com Sucesso!')
     return redirect(url_for('perfil',idusuario=id_amigo))
 
-@app.route('/remover_amigo<id_amigo>', methods=['POST'])
+
+@app.route('/solicitar_amigo/<id_amigo>', methods=['GET','POST'])
+def web_solicitar_amigo(id_amigo):
+    """ POST: Solicitar Amigo """
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = reload_conn()
+
+    if session['userid'] == id_amigo: 
+        abort(401)
+
+    cursor.execute(DB_SOLICITAR_AMIGO, (session['userid'], int(id_amigo)))
+    db.commit()
+
+    flash('Pedido de Amizade Enviado!')
+    return redirect(url_for('perfil',idusuario=id_amigo))
+
+@app.route('/excluir_solicitacao_recebida/<id_amigo>', methods=['GET','POST'])
+def web_excluir_solicitacao_recebida(id_amigo):
+    """ POST: Excluir Solicitacao de Amizade """
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = reload_conn()
+
+    if session['userid'] == id_amigo: 
+        abort(401)
+
+    cursor.execute(DB_REMOVER_PEDIDO, (int(id_amigo), session['userid']))
+    db.commit()
+
+    flash('Solicitacao Excluida!')
+    return redirect(url_for('page_solicitacoes_amizade'))
+
+
+
+@app.route('/excluir_solicitacao_enviada/<id_amigo>', methods=['GET','POST'])
+def web_excluir_solicitacao_enviada(id_amigo):
+    """ POST: Excluir Solicitacao de Amizade """
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = reload_conn()
+
+    if session['userid'] == id_amigo: 
+        abort(401)
+
+    cursor.execute(DB_REMOVER_PEDIDO, (session['userid'], (id_amigo)))
+    db.commit()
+
+    flash('Solicitacao Excluida!')
+    return redirect(url_for('page_solicitacoes_amizade'))
+
+
+
+
+
+
+@app.route('/remover_amigo/<id_amigo>', methods=['GET','POST'])
 def web_remover_amigo(id_amigo):
     """ POST: Remover Amigos """
     if not session.get('logged_in'):
@@ -292,7 +389,7 @@ def web_remover_amigo(id_amigo):
     return redirect(url_for('perfil',idusuario=id_amigo))
 
 
-@app.route('/bloquear_pessoa/<id_amigo>', methods=['POST'])
+@app.route('/bloquear_pessoa/<id_amigo>', methods=['GET','POST'])
 def web_bloquear_pessoa(id_amigo):
     """ POST: Bloquear Pessoa """
     if not session.get('logged_in'):
@@ -332,6 +429,60 @@ def web_desbloquear_pessoa(id_amigo):
 
 
 
+@app.route('/grupos', methods=['GET', 'POST'])
+def page_grupos():
+    """ Pagina que lista os grupos da rede social """
+    _, cursor = reload_conn()
+    grupos_participados, todos_grupos = [], []
+
+    if session and session['logged_in']:
+        cursor.execute(DB_LISTAR_GRUPOS_PARTICIPADOS, (session['userid'],))
+        grupos_participados = cursor.fetchall()
+        grupos_participados = [list(x) for x in grupos_participados]
+
+        cursor.execute(DB_LISTAR_GRUPOS_LOGADO, (session['userid'],))
+        todos_grupos = cursor.fetchall()
+        todos_grupos = [list(x) for x in todos_grupos] # desempacota a tupla de tuplas
+    else:
+        cursor.execute(DB_LISTAR_GRUPOS)
+        todos_grupos = cursor.fetchall()
+        todos_grupos = [list(x) for x in todos_grupos] # desempacota a tupla de tuplas
+        
+    return render_template('grupos.html', todos_grupos=todos_grupos,grupos_participados=grupos_participados)
+
+@app.route('/grupos/<id_grupo>', methods=['GET', 'POST'])
+def web_grupo(id_grupo):
+    """ Carrega detalhes, membros e postagens do grupo """
+    _, cursor = reload_conn()
+    
+    cursor.execute(DB_GRUPO_PROCURAR_GRUPO_POR_ID,(id_grupo,))
+    detalhes_grupo = cursor.fetchall()
+    detalhes_grupo = [list(x) for x in detalhes_grupo]
+
+    postagens_grupo = []
+    membros_grupo = []
+
+    if session and session['logged_in']:
+        check = cursor.execute(DB_GRUPO_PROCURAR_MEMBRO_POR_ID,(session['userid'],id_grupo))
+        if check:    
+            cursor.execute(DB_GRUPO_LISTAR_PUBLICACOES, (id_grupo,))
+            postagens_grupo = cursor.fetchall()
+            postagens_grupo = [list(x) for x in postagens_grupo]
+            
+            cursor.execute(DB_GRUPO_LISTAR_MEMBROS, (id_grupo,))
+            membros_grupo = cursor.fetchall()
+            membros_grupo = [list(x) for x in membros_grupo]
+
+    return render_template('gperfil.html', postagens_grupo=postagens_grupo, membros_grupo=membros_grupo, detalhes_grupo=detalhes_grupo)
+
+
+
+
+
+@app.route('/sobre', methods=['GET', 'POST'])
+def sobre():
+    
+    return render_template('sobre.html')
 
 
 @app.context_processor
@@ -351,6 +502,18 @@ def utils():
         test_a = cursor.execute(DB_VERIFICAR_BLOQUEIO,(session['userid'],id_amigo) )
         test_b = cursor.execute(DB_VERIFICAR_BLOQUEIO,(id_amigo,session['userid']) )
         return test_a or test_b
-    return dict(verificar_amizade=verificar_amizade,verificar_bloqueio=verificar_bloqueio)
+
+    def verificar_status_grupo(id_grupo):
+        if not session.get('logged_in'):
+            return None
+        _, cursor = reload_conn()
+
+        test = cursor.execute(DB_GRUPO_VERIFICAR_PRIVILEGIOS,(id_grupo, session['userid']) )
+        test = cursor.fetchall()
+        if test:
+            return test[0][0]
+        else:
+            return None
+    return dict(verificar_amizade=verificar_amizade,verificar_bloqueio=verificar_bloqueio, verificar_status_grupo=verificar_status_grupo)
 
 

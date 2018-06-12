@@ -1,33 +1,41 @@
 {% extends "home.html" %}
 {% block body %}
 
+<div style=" width: 100%;"  class="container-fluid">
+
   <h2>Cadastre-se</h2>
   {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
   <form action="{{ url_for('cadastro') }}" method=post>
+      
     <dl>
+        <div class="form-row">
+            <div class="col">
       <dt>Nome:
-      <dd><input type=text name=nome>
+      <dd><input class="form-control" type=text name=nome> </div>
+        <div class="col">
       <dt>Sobrenome:
-      <dd><input type=text name=sobrenome>
+      <dd><input class="form-control" type=text name=sobrenome></div> </div>
+        <div class="form-row">
+            <div class="col">
       <dt>E-mail:
-      <dd><input type=text name=email> <p>
+      <dd><input class="form-control" type=text name=email> <p>
       <dt>Genero:
-          <select name="genero">
+          <select class="form-control" name="genero">
               <option value="Masculino">Masculino</option>
               <option value="Feminino">Feminino</option>
               <option value="Outro">Outro</option>           
           </select>
-      <p>
+      <p></p></div>
       <dt>Biografia:</dt>
-      <dd><input type=text name=bio>
+      <dd><input class="form-control" type=text name=bio>
       <dt>Senha:
-      <dd><input type=password name=password>
+      <dd><input class="form-control" type=password name=password>
       <dt>Confirmar Senha:
-      <dd><input type=password name=passwordconfirm>
+      <dd><input class="form-control" type=password name=passwordconfirm>
       <dd><input type=submit value="Criar Conta">
     </dl>
   </form>
 
   <li role="presentation"><a href="login">Já possui conta? Faça Login</a>
-
+  </div>
 {% endblock %}

@@ -1,0 +1,29 @@
+{% extends "home.html" %}
+{% block body %}
+
+
+
+<div class="col">
+
+    <h1>Pessoas nesta rede social</h1>
+
+
+          <ul class=list-group list-group>
+
+              {% for amg in todaspessoas | batch(3) %}
+              <div class="row">
+                  {% for a in amg %}
+                  <div class="col-md-4"><div class="thumbnail">
+                    <a href="{{ url_for('perfil', idusuario=a[0]) }}"><h4> &nbsp;  {{ a[1] }} {{ a[2] }} </h4> </a> </div></div>
+                  {% endfor %}
+                </div>
+                {% endfor %}
+    
+                </div>
+
+
+            </ul>
+
+        </div>
+
+{% endblock %}

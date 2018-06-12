@@ -1,0 +1,46 @@
+{% extends "home.html" %}
+{% block body %}
+
+{% if verificar_status_grupo(detalhes_grupo[0][0]) == 'Bloqueado' %}
+
+<h1>USUÁRIO BLOQUEADO!!!</h1>
+<br><br><br><br>
+<form action="{{ url_for('web_desbloquear_pessoa',id_amigo=pessoa[0]) }}" method=post class=add-entry>
+    <button type="submit" class="btn btn-sm btn-danger">Desbloquear</button></form>
+
+{% else %}
+
+<div style="background-image:url( {{ url_for('static', filename='photo3.jpg') }}) ;color:white;" class="jumbotron">
+    
+    <h1 class="display-1">&nbsp;{{ detalhes_grupo[0][1]}}</h1><br>
+    <h4 class="display-1">&nbsp;&nbsp;{{ detalhes_grupo[0][2] }}</h4>
+    <br>
+    {% if session.logged_in %}
+
+    {% if verificar_status_grupo(detalhes_grupo[0][0]) == 'Comum' %} <h3>Membro</h3>
+    <form action="" method=post class=add-entry>
+            <button type="submit" class="btn btn-sm btn-danger">Sair do Grupo</button></form>
+               
+
+    {% elif verificar_status_grupo(detalhes_grupo[0][0]) == 'Administrador' %} 
+    <h3>Administrador</h1>
+      <form action="" method=post class=add-entry>
+          <button type="submit" class="btn btn-sm btn-danger">Sair do Grupo</button></form>
+      {% endif %}
+
+    {% if not verificar_status_grupo(detalhes_grupo[0][0]) %}
+    <h3>Não-Membro</h1>
+      <form action="" method=post class=add-entry>
+          <button type="submit" class="btn btn-sm btn-success">Solicitar Entrada</button></form>
+    
+    {% endif %}
+    {% endif %}
+</div>
+
+      
+{% endif %}
+
+    
+
+
+{% endblock %}

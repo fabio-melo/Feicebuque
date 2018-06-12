@@ -87,12 +87,19 @@ def gerar_grupos(cursor,db):
         cursor.execute(DB_GRUPO_ADICIONAR_MEMBRO, (x,random.randint(1,10),"Administrador"))
     
     for x in range(1,11):
-        for y in range(20):
+        for y in range(5):
+            try:
+                cursor.execute(DB_SOLICITAR_AMIGO, (random.randint(1,100), y))
+                cursor.execute(DB_SOLICITAR_AMIGO, (y,random.randint(1,100)))
+            except: 
+                pass
+
+    for x in range(1,11):
+        for y in range(10):
             try:
                 cursor.execute(DB_GRUPO_ADICIONAR_MEMBRO, (x,random.randint(1,100), "Comum"))
-            except:
+            except Exception as e:
                 continue
-
     db.commit()
 
 #-----------------------------------------#

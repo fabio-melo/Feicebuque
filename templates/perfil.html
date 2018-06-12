@@ -10,7 +10,7 @@
 
 {% else %}
 
-<div style="background-image:url( {{ url_for('static', filename='photo-bg.jpg') }}) ;color:white" class="jumbotron">
+<div style="background-image:url( {{ url_for('static', filename='photo-bg.jpg') }}) ;color:white;" class="jumbotron">
     {% if session.logged_in %}
     <h1 class="display-1">&nbsp;{{ pessoa[1]}} {{ pessoa[2] }}</h1><br>
     <h4 class="display-1">&nbsp;&nbsp;{{ pessoa[6] }}</h4>
@@ -24,8 +24,8 @@
  
     {% else %}
 
-        <form action="{{ url_for('web_adicionar_amigo',id_amigo=pessoa[0]) }}" method=post class=add-entry>
-            <button type="submit" class="btn btn-sm btn-success">Adicionar Amigo</button></form>
+        <form action="{{ url_for('web_solicitar_amigo',id_amigo=pessoa[0]) }}" method=post class=add-entry>
+            <button type="submit" class="btn btn-sm btn-success">Solicitar Amizade</button></form>
                
     {% endif %}
     <form action="{{ url_for('web_bloquear_pessoa',id_amigo=pessoa[0]) }}" method=post class=add-entry>
@@ -33,7 +33,7 @@
     {% endif %}
     {% else %}
     <h1 class="display-1">&nbsp;{{ pessoa[1]}} {{ pessoa[2] }}</h1><br>
-    <h4 class="display-1">&nbsp;&nbsp;{{ pessoa[6] }}</h1>
+    <h4 class="display-1">&nbsp;&nbsp;{{ pessoa[6] }}</h4>
     {% endif %}
 </div>
 

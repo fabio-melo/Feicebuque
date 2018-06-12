@@ -1,0 +1,32 @@
+{% extends "home.html" %}
+{% block body %}
+
+<div class="col">
+        {% if session.logged_in %}
+          <h1>Meus Grupos</h1>
+
+          <ul class=list-group list-group>
+              {% for g in grupos_participados %}
+            <li class="list-group-item">
+            
+              <a href="{{ url_for('web_grupo', id_grupo=g[0]) }}"><h3>{{ g[1] }}</h3></a><br><br></li>
+              {% else %}
+              <li class="list-group-item"><em>não há grupos aqui</em>        </li>
+              {% endfor %}
+              {% endif %}
+            </ul>
+
+          <h1>Grupos nesta rede social</h1>
+        
+        <ul class=list-group list-group>
+            {% for g in todos_grupos %}      
+          <li class="list-group-item list-group-item">
+                
+                 <a href="{{ url_for('web_grupo', id_grupo=g[0]) }}">{{ g[1] }}</a> <br><br>
+</li>
+                {% endfor %} 
+    
+
+        </div>
+
+{% endblock %}

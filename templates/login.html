@@ -1,17 +1,21 @@
 {% extends "home.html" %}
 {% block body %}
-<div class="form-group">
+<div class="form-group" action="{{ url_for('login') }}" method=post>
   <h2>Login</h2>
-  {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-  <form action="{{ url_for('login') }}" method=post>
-    <dl>
-      <dt>E-Mail:
-      <dd><input type=text name=email>
-      <dt>Senha:
-      <dd><input type=password name=password>
-      <dd><input type=submit value=Login>
-    </dl>
+  {% if error %}<p class=error><strong>Erro:</strong> {{ error }}{% endif %}
+    <form action="{{ url_for('login') }}" method=post>
+      <div class="form-group">
+      <label for="exampleInputEmail1">E-mail</label>
+      <input type="email" class="form-control" aria-describedby="emailHelp" name=email placeholder="Digite o seu E-mail">
+      <small id="emailHelp" class="form-text text-muted">Nós nunca compartilharemos seu email com ninguém.</small>
+    </div>
+    <div class="form-group">
+      <label for="exampleInputPassword1">Senha</label>
+      <input type="password" class="form-control" placeholder="Digite a sua Senha" name=password>
+    </div>
+    <button type="submit" class="btn btn-primary" value=Login>Entrar</button>
   </form>
   <a href="cadastro">Não possui conta? Cadastre-se</a>
 </div>
 {% endblock %}
+

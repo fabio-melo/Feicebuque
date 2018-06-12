@@ -1,30 +1,35 @@
 {% extends "home.html" %}
 {% block body %}
 
+
+
 <div class="col">
+
         {% if session.logged_in %}
-          <h1>Todos os meus Amigos</h1>
+          <h1>Meus Amigos</h1>
+
+
 
           <ul class=list-group list-group>
-              {% for amg in amigos %}
-            <li class="list-group-item">
-            
-              <a href="{{ url_for('perfil', idusuario=amg[0]) }}">{{ amg[1] }} {{ amg[2] }}</a> <br><br></li>
-              {% else %}
-              <li class="list-group-item"><em>Vá fazer amigos, OMG!</em>        </li>
-              {% endfor %}
+
+              {% for amg in amigos | batch(3) %}
+              <div class="row">
+                  {% for a in amg %}
+                  <div class="col-md-4"><div class="thumbnail">
+                    <a href="{{ url_for('perfil', idusuario=a[0]) }}"><h2> &nbsp;  {{ a[1] }} {{ a[2] }} </h2> </a>  
+                    <p>&nbsp;  
+                      <a href="{{ url_for('web_remover_amigo',id_amigo=a[0]) }}" class="btn btn-sm btn-info" role="button">Remover Amigo</a> 
+                      <a href="{{ url_for('web_bloquear_pessoa', id_amigo=a[0]) }}" class="btn btn-sm btn-warning" role="button">Bloquear Pessoa</a></p></div></div>
+                  {% endfor %}
+                </div>
+                {% endfor %}
+    
+                </div>
+
+
               {% endif %}
             </ul>
-          <h1>Pessoas nesta rede social</h1>
-        
-        <ul class=list-group list-group>
-            {% for amg in todaspessoas %}      
-          <li class="list-group-item list-group-item">
-                
-                 <a href="{{ url_for('perfil', idusuario=amg[0]) }}">{{ amg[1] }} {{ amg[2] }}</a> <br><br>
-</li>
-                {% endfor %} 
-    
+
 
         </div>
 

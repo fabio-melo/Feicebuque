@@ -13,8 +13,18 @@ DB_LISTAR_USUARIOS = "SELECT id_pessoa,nome,sobrenome FROM pessoas;"
 
 # (p_pedido_amizade)
 DB_SOLICITAR_AMIGO  = "INSERT INTO p_pedido_amizade(id_solicitante,id_solicitado) VALUES (%s,%s);"
-DB_REMOVER_PEDIDO = "DELETE FROM p_pedido_amizade WHERE id_pessoa1 = %s AND id_pessoa2 = %s;"
-DB_LISTAR_PEDIDO = "SELECT * FROM p_pedido_amizade WHERE (id_solicitante LIKE %s OR id_solicitadol LIKE %s);"
+DB_REMOVER_PEDIDO = "DELETE FROM p_pedido_amizade WHERE id_solicitante = %s AND id_solicitado = %s;"
+
+DB_LISTAR_PEDIDO_SOLICITANTE = " SELECT p_pedido_amizade.id_solicitante, p_pedido_amizade.id_solicitado, p.nome, p.sobrenome \
+                                FROM p_pedido_amizade \
+                                INNER JOIN pessoas p ON p.id_pessoa = p_pedido_amizade.id_solicitado\
+                                WHERE id_solicitante LIKE %s;"
+
+DB_LISTAR_PEDIDO_SOLICITADO = " SELECT p_pedido_amizade.id_solicitante, p_pedido_amizade.id_solicitado, p.nome, p.sobrenome \
+                                FROM p_pedido_amizade \
+                                INNER JOIN pessoas p ON p.id_pessoa = p_pedido_amizade.id_solicitante\
+                                WHERE id_solicitado LIKE %s;"
+
 
 # (p_amigos)
 DB_ADICIONAR_AMIGO  = "INSERT INTO p_amigos(id_pessoa1,id_pessoa2) VALUES (%s,%s);"
@@ -23,6 +33,7 @@ DB_LISTAR_AMIGOS = "SELECT id_pessoa1 FROM p_amigos WHERE id_pessoa2 LIKE %s \
                       UNION SELECT id_pessoa2 FROM p_amigos WHERE id_pessoa1 LIKE %s;"
 
 DB_VERIFICAR_AMIZADE = "SELECT * FROM p_amigos WHERE (id_pessoa1 LIKE %s AND id_pessoa2 LIKE %s);"
+
 
 # (p_bloqueio)
 DB_BLOQUEAR_PESSOA = "INSERT INTO p_bloqueio(id_pessoa1,id_pessoa2) VALUES (%s,%s);"
@@ -64,7 +75,7 @@ DB_LISTAR_PUBLICACOES_LINHA_DO_TEMPO = \
 
 
 DB_PROCURAR_PUBLICACAO = \
-    "SELECT p_publicacoes.id_publicacao, mural.nome, mural.sobrenome, postador.nome, postador.sobrenome, p_publicacoes.texto_publicacao, p_publicacoes.data_publicacao \
+    "SELECT p_publicacoes.id_publicacao, mural.nome, mural.sobrenome, postador.nome, postador.sobrenome, p_publicacoes.texto_publicacao, p_publicacoes.data_publicacao, mural.id_pessoa \
     FROM p_publicacoes \
     INNER JOIN pessoas mural ON mural.id_pessoa = p_publicacoes.id_pessoa_mural \
     INNER JOIN pessoas postador ON postador.id_pessoa = p_publicacoes.id_pessoa_postador \
@@ -76,7 +87,7 @@ DB_PROCURAR_PUBLICACAO = \
 DB_ESCREVER_COMENTARIO = "INSERT INTO p_comentarios(id_publicacao, id_pessoa_comentario, texto_publicacao) VALUES (%s,%s,%s);"
 DB_REMOVER_COMENTARIO = "DELETE FROM p_comentarios WHERE id_comentario = %s;"
 DB_LISTAR_COMENTARIOS = \
-    "SELECT id_pessoa_comentario, postador.nome, postador.sobrenome, data_publicacao, texto_publicacao \
+    "SELECT id_pessoa_comentario, postador.nome, postador.sobrenome, data_publicacao, texto_publicacao, id_comentario \
     FROM p_comentarios \
     INNER JOIN pessoas postador ON postador.id_pessoa = p_comentarios.id_pessoa_comentario \
     WHERE (p_comentarios.id_publicacao LIKE %s)\
@@ -86,13 +97,18 @@ DB_LISTAR_COMENTARIOS = \
 DB_CRIAR_GRUPO = "INSERT INTO grupos(nome_grupo,descricao_grupo) \
                   VALUES (%s, %s);"
 
-DB_LISTAR_GRUPOS_LOGADO = 'grupos.id_grupo, grupos.nome_grupo, grupos.descricao_grupo\
-                           INNER JOIN g_membros g ON g.id_grupo = grupos.id_grupo \
-                                  WHERE g.id_pessoa = %s AND g.tipo_membro != "Bloqueado";'
+DB_LISTAR_GRUPOS = 'SELECT grupos.id_grupo, grupos.nome_grupo, grupos.descricao_grupo FROM grupos;'
 
-DB_LISTAR_GRUPOS_PARTICIPADOS = 'SELECT grupos.id_grupo, grupos.nome_grupo, grupos.descricao_grupo FROM grupos\
+DB_LISTAR_GRUPOS_LOGADO = 'SELECT DISTINCT grupos.id_grupo, grupos.nome_grupo, grupos.descricao_grupo  FROM grupos \
+                           INNER JOIN g_membros g ON g.id_grupo = grupos.id_grupo \
+                                  WHERE NOT(g.id_pessoa = %s AND g.tipo_membro = "Bloqueado");'
+
+DB_LISTAR_GRUPOS_PARTICIPADOS = 'SELECT grupos.id_grupo, grupos.nome_grupo, grupos.descricao_grupo FROM grupos \
                                   INNER JOIN g_membros g ON g.id_grupo = grupos.id_grupo \
                                   WHERE g.id_pessoa = %s AND g.tipo_membro != "Bloqueado";'
+
+DB_GRUPO_PROCURAR_GRUPO_POR_ID = "SELECT * FROM grupos WHERE id_grupo= %s;"
+
 
 # (g_membros)
 DB_GRUPO_ADICIONAR_MEMBRO = "INSERT INTO g_membros(id_grupo,id_pessoa,tipo_membro) \
@@ -110,11 +126,16 @@ DB_GRUPO_LISTAR_SOLICITACOES = 'SELECT grupos.id_grupo, grupos.nome_grupo, g.tip
                                 INNER JOIN pessoas p ON p.id_pessoa = g.id_pessoa \
                                 WHERE g.id_grupo = %s and g.tipo_membro = "Solicitado";'
 
+DB_GRUPO_PROCURAR_MEMBRO_POR_ID = "SELECT * FROM g_membros WHERE id_pessoa = %s AND id_grupo= %s AND tipo_membro != 'Bloqueado';"
+
 
 # tornar ou remover admin, e bloquear
 DB_GRUPO_MODIFICAR_PRIVILEGIOS = "UPDATE g_membros \
                               SET tipo_membro = %s \
                               WHERE id_grupo = %s AND id_pessoa = %s;"
+
+DB_GRUPO_VERIFICAR_PRIVILEGIOS = "SELECT tipo_membro FROM g_membros \
+                                  WHERE id_grupo = %s and id_pessoa = %s;"
 
 # (g_publicacoes)
 DB_GRUPO_ESCREVER_PUBLICACAO = "INSERT INTO g_publicacoes(id_grupo, id_pessoa, texto) VALUES (%s,%s,%s);"

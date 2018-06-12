@@ -38,6 +38,14 @@
             {% for comentario in comentarios %}
             <li class="list-group-item"><h4  class=display-4><a href="{{ url_for('perfil', idusuario=comentario[0]) }}">  {{ comentario[1] }} {{ comentario[2] }} </a> -  <b>{{ comentario[3] }} </b></h4>
                 <h5> ({{ comentario[1] }}{{ comentario[2] }}) </h5>  {{ comentario[4] |safe }}
+                
+                {% if session.userid == publicacao[0][7] %}
+                <br><br>
+                <form action="{{ url_for('remover_comentario',idcomentario=comentario[5]) }}" method=post class=add-entry>
+                    <button type="submit" class="btn btn-xs btn-basic">Remover Comentario</button></form>
+                {% endif %}
+
+
             {% else %}
             <li class="list-group-item"><em>Não há postagens novas</em>
             {% endfor %}
