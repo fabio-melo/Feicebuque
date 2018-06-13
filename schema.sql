@@ -135,26 +135,18 @@ CREATE TABLE g_publicacoes(
 	FOREIGN KEY(id_grupo) REFERENCES grupos(id_grupo)
 );
 
-/*
-DROP TABLE IF EXISTS curtidas;
 
-CREATE TABLE curtidas(
-	id_curtida INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	nome_curtida VARCHAR(255) NOT NULL,
-	PRIMARY KEY(id_curtida)
+CREATE TABLE g_comentarios(
+	id_comentario INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	id_publicacao INT UNSIGNED NOT NULL,
+	id_pessoa_comentario INT UNSIGNED NOT NULL,
+	data_publicacao TIMESTAMP NOT NULL,
+	texto_publicacao TEXT,
+	PRIMARY KEY(id_comentario),
+	FOREIGN KEY(id_publicacao) REFERENCES g_publicacoes(id_publicacao) ON DELETE CASCADE,
+	FOREIGN KEY(id_pessoa_comentario) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS p_curtidas;
-
-CREATE TABLE p_curtidas(
-	id_pessoa INT UNSIGNED NOT NULL,
-	id_curtida INT UNSIGNED NOT NULL,
-	PRIMARY KEY(id_pessoa,id_curtida),
-	FOREIGN KEY(id_pessoa) REFERENCES pessoas(id_pessoa) ON DELETE CASCADE,
-	FOREIGN KEY(id_curtida) REFERENCES curtidas(id_curtida)
-);
-
- */
 
 
 SET FOREIGN_KEY_CHECKS=1;

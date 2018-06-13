@@ -234,7 +234,7 @@ def remover_comentario(idcomentario):
 
 @app.route('/amigos', methods=['GET', 'POST'])
 def page_amigos():
-    """ Parte dos Requisitos: Pagina que lista amigos da rede social """
+    """ Parte dos Requisitos: Pagina que lista amigosda rede social """
     _, cursor = reload_conn()
     amigos = []
     if session and session['logged_in']:
@@ -265,19 +265,6 @@ def page_pessoas():
     return render_template('pessoas.html', todaspessoas=todaspessoas)
 
 
-@app.route('/solicitacoes', methods=['GET', 'POST'])
-def page_solicitacoes_amizade():
-    """ Parte dos Requisitos: Pagina que lista amigos da rede social """
-    _, cursor = reload_conn()
-
-    if session and session['logged_in']:
-        cursor.execute(DB_LISTAR_PEDIDO_SOLICITADO, (session['userid'],))
-        recebido = cursor.fetchall()
-        cursor.execute(DB_LISTAR_PEDIDO_SOLICITANTE, (session['userid'],))
-        enviado = cursor.fetchall()
-    
-    
-    return render_template('a_solicitacoes.html', recebido=recebido, enviado=enviado)
 
 
 @app.route('/comentarios/<idpublicacao>', methods=['GET', 'POST'])
@@ -297,7 +284,7 @@ def page_comentarios(idpublicacao):
 
 # MÉTODOS DE ESCRITA
 
-@app.route('/adicionar_amigo/<id_amigo>', methods=['POST','GET'])
+@app.route('/adicionar_amigo/<id_amigo>', methods=['POST'])
 def web_adicionar_amigo(id_amigo):
     """ POST: Adicionar Amigo """
     if not session.get('logged_in'):
@@ -306,7 +293,7 @@ def web_adicionar_amigo(id_amigo):
 
     if session['userid'] == id_amigo: 
         abort(401)
-    cursor.execute(DB_REMOVER_PEDIDO, (id_amigo,session['userid']))
+
     par_amigos = sorted((int(session['userid']), int(id_amigo)))
     cursor.execute(DB_ADICIONAR_AMIGO, (par_amigos[0],par_amigos[1]))
     db.commit()
@@ -330,41 +317,6 @@ def web_solicitar_amigo(id_amigo):
 
     flash('Pedido de Amizade Enviado!')
     return redirect(url_for('perfil',idusuario=id_amigo))
-
-@app.route('/excluir_solicitacao_recebida/<id_amigo>', methods=['GET','POST'])
-def web_excluir_solicitacao_recebida(id_amigo):
-    """ POST: Excluir Solicitacao de Amizade """
-    if not session.get('logged_in'):
-        abort(401)
-    db, cursor = reload_conn()
-
-    if session['userid'] == id_amigo: 
-        abort(401)
-
-    cursor.execute(DB_REMOVER_PEDIDO, (int(id_amigo), session['userid']))
-    db.commit()
-
-    flash('Solicitacao Excluida!')
-    return redirect(url_for('page_solicitacoes_amizade'))
-
-
-
-@app.route('/excluir_solicitacao_enviada/<id_amigo>', methods=['GET','POST'])
-def web_excluir_solicitacao_enviada(id_amigo):
-    """ POST: Excluir Solicitacao de Amizade """
-    if not session.get('logged_in'):
-        abort(401)
-    db, cursor = reload_conn()
-
-    if session['userid'] == id_amigo: 
-        abort(401)
-
-    cursor.execute(DB_REMOVER_PEDIDO, (session['userid'], (id_amigo)))
-    db.commit()
-
-    flash('Solicitacao Excluida!')
-    return redirect(url_for('page_solicitacoes_amizade'))
-
 
 
 @app.route('/remover_amigo/<id_amigo>', methods=['GET','POST'])
@@ -425,6 +377,7 @@ def web_desbloquear_pessoa(id_amigo):
     return redirect(url_for('perfil',idusuario=id_amigo))
 
 
+
 @app.route('/grupos', methods=['GET', 'POST'])
 def page_grupos():
     """ Pagina que lista os grupos da rede social """
@@ -446,30 +399,6 @@ def page_grupos():
         
     return render_template('grupos.html', todos_grupos=todos_grupos,grupos_participados=grupos_participados)
 
-
-@app.route('/grupos/criar_grupo', methods=['GET', 'POST'])
-def page_criar_grupo():
-    """ Criar Grupos """
-    error = None
-    db, cursor = reload_conn()
-
-    if request.method == 'POST':
-        grup = cursor.execute(DB_GRUPO_PROCURAR_GRUPO_POR_NOME, (request.form['grupo'],))
-        
-        if grup:
-            error = 'grupo já existe'
-        else:
-            cursor.execute(DB_CRIAR_GRUPO, (request.form['grupo'], request.form['descricao']))
-            cursor.execute(DB_GRUPO_PROCURAR_GRUPO_POR_NOME, (request.form['grupo'],))
-            id_grupo = cursor.fetchall()
-            cursor.execute(DB_GRUPO_ADICIONAR_MEMBRO, (id_grupo[0][1], session['userid'], 'Administrador'))
-            db.commit()
-            flash("grupo criado com sucesso")
-            return redirect(url_for('page_grupos'))
-
-    return render_template('criargrupo.html', error=error)
-
-
 @app.route('/grupos/<id_grupo>', methods=['GET', 'POST'])
 def web_grupo(id_grupo):
     """ Carrega detalhes, membros e postagens do grupo """
@@ -481,7 +410,6 @@ def web_grupo(id_grupo):
 
     postagens_grupo = []
     membros_grupo = []
-
 
     if session and session['logged_in']:
         check = cursor.execute(DB_GRUPO_PROCURAR_MEMBRO_POR_ID,(session['userid'],id_grupo))
@@ -496,45 +424,8 @@ def web_grupo(id_grupo):
 
     return render_template('gperfil.html', postagens_grupo=postagens_grupo, membros_grupo=membros_grupo, detalhes_grupo=detalhes_grupo)
 
-@app.route('/grupo_add_postagem/<id_postagem>', methods=['GET', 'POST'])
-def grupo_add_postagem(id_grupo):
-    if not session.get('logged_in'):
-        abort(401)
-    db, cursor = reload_conn()
-    cursor.execute(DB_GRUPO_ESCREVER_PUBLICACAO, (id_grupo, session['userid'], \
-                                            request.form['text']))
-    db.commit()
-
-    flash('Postado com Sucesso!')
-    return redirect(url_for('web_grupo',id_grupo=id_grupo))
-
-@app.route('/grupo_remover_postagem/<id_postagem>', methods=['GET', 'POST'])
-def grupo_remover_postagem(id_postagem):
-    """ POST: Excluir Publicacao """
-
-    if not session.get('logged_in'):
-        abort(401)
-
-    db, cursor = reload_conn()
-    cursor.execute(DB_GRUPO_REMOVER_PUBLICACAO, (id_postagem,))
-    db.commit()
-    return redirect(url_for('grupo_remover_postagem'))
 
 
-@app.route('/grupo_add_comentario/<id_comentario>', methods=['GET', 'POST'])
-def grupo_add_comentario(id_comentario):
-    if not session.get('logged_in'):
-        abort(401)
-    db, cursor = reload_conn()
-    cursor.execute(DB_GRUPO_ESCREVER_COMENTARIO, (id_comentario, session['userid'],\
-                                            request.form['text']))
-    db.commit()
-    flash('Postado com Sucesso!')
-    return redirect(url_for('grupo_add_comentario'))
-
-@app.route('/grupo_remover_comentario/<id_comentario>', methods=['GET', 'POST'])
-def grupo_remover_comentario(id_comentario):
-    pass
 
 
 @app.route('/sobre', methods=['GET', 'POST'])

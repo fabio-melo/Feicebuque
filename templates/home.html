@@ -59,7 +59,7 @@
                         <ul class="collapse list-unstyled" id="pageSubmenu">
                             <li><a href="{{ url_for('page_grupos') }}">Todos os Grupos</a></li>
                             {% if session.logged_in %}
-                            <li><a href="#">Criar Grupo</a></li>
+                            <li><a href="{{ url_for('page_criar_grupo') }}">Criar Grupo</a></li>
                             <li><a href="#">Gerenciar Grupos</a></li>
                             {% endif %}
                         </ul>

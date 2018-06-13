@@ -109,6 +109,8 @@ DB_LISTAR_GRUPOS_PARTICIPADOS = 'SELECT grupos.id_grupo, grupos.nome_grupo, grup
 
 DB_GRUPO_PROCURAR_GRUPO_POR_ID = "SELECT * FROM grupos WHERE id_grupo= %s;"
 
+DB_GRUPO_PROCURAR_GRUPO_POR_NOME = "SELECT nome_grupo, id_grupo FROM grupos where nome_grupo = %s;"
+
 
 # (g_membros)
 DB_GRUPO_ADICIONAR_MEMBRO = "INSERT INTO g_membros(id_grupo,id_pessoa,tipo_membro) \
@@ -158,3 +160,14 @@ DB_GRUPO_PROCURAR_PUBLICACAO = \
     INNER JOIN grupos g ON g.id_grupo = g_publicacoes.id_grupo \
     WHERE (g_publicacoes.id_publicacao LIKE %s)\
     ORDER BY g_publicacoes.data_publicacao_grupo DESC;"
+
+# (g_comentarios)
+
+DB_GRUPO_ESCREVER_COMENTARIO = "INSERT INTO g_comentarios(id_publicacao, id_pessoa_comentario, texto_publicacao) VALUES (%s,%s,%s);"
+DB_GRUPO_REMOVER_COMENTARIO = "DELETE FROM g_comentarios WHERE id_comentario = %s;"
+DB_GRUPO_LISTAR_COMENTARIOS = \
+    "SELECT id_pessoa_comentario, postador.nome, postador.sobrenome, data_publicacao, texto_publicacao, id_comentario \
+    FROM p_comentarios \
+    INNER JOIN pessoas postador ON postador.id_pessoa = p_comentarios.id_pessoa_comentario \
+    WHERE (p_comentarios.id_publicacao LIKE %s)\
+    ORDER BY p_comentarios.data_publicacao DESC;"
