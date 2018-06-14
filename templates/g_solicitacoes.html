@@ -1,0 +1,63 @@
+{% extends "home.html" %}
+{% block body %}
+
+
+
+<div class="col">
+
+        {% if session.logged_in %}
+          <h1>Solicitações de Entrada no Grupo</h1>
+          <ul class=list-group list-group>
+
+            <h3>Solicitações Recebidas</h3>
+              {% for amg in recebido | batch(3) %}
+              <div class="row">
+                  {% for a in amg %}
+                  <div class="col-md-4"><div class="thumbnail">
+                    <a href="{{ url_for('perfil', idusuario=a[0]) }}"><h2> &nbsp;  {{ a[2] }} {{ a[3] }} </h2> </a>  
+                    <p>&nbsp;  
+                      <a href="{{ url_for('web_adicionar_amigo',id_amigo=a[0]) }}" class="btn btn-sm btn-success" role="button">Aceitar</a> 
+                      <a href="{{ url_for('web_excluir_solicitacao_recebida',id_amigo=a[0]) }}" class="btn btn-sm btn-danger" role="button">Recusar</a></p></div></div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class=thumbnail>
+                    <h4>Não há solicitações agora</h4></div>
+                {% endfor %}
+    
+                </div>
+              </ul>
+
+
+          <ul class=list-group list-group>
+            <h3>Membros do Grupo</h3>
+              {% for amg in membros | batch(3) %}
+              <div class="row">
+                  {% for a in amg %}
+                  <div class="col-md-4"><div class="thumbnail">
+                    <a href="{{ url_for('perfil', idusuario=a[1]) }}"><h2> &nbsp;  {{ a[2] }} {{ a[3] }} </h2> </a>  
+                    <p>&nbsp;  
+                      <a href="{{ url_for('web_excluir_solicitacao_enviada',id_amigo=a[1]) }}" class="btn btn-sm btn-info" role="button">Tornar Administrador</a>
+                      <a href="{{ url_for('web_excluir_solicitacao_enviada',id_amigo=a[1]) }}" class="btn btn-sm btn-info" role="button">Bloquear</a>
+                      <a href="{{ url_for('web_excluir_solicitacao_enviada',id_amigo=a[1]) }}" class="btn btn-sm btn-info" role="button">Remover do Grupo</a>
+
+                   </div></div>
+                      {% endfor %} </div>
+              
+                {% else %}
+                <div class=thumbnail>
+                <h4>Não há solicitações agora</h4></div>
+                {% endfor %}
+    
+                </div>
+              </ul>
+
+
+              
+
+              {% endif %}
+            
+
+        </div>
+
+{% endblock %}

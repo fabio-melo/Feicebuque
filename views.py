@@ -470,6 +470,30 @@ def page_criar_grupo():
     return render_template('criargrupo.html', error=error)
 
 
+@app.route('/grupo/<id_grupo>/adicionar_membro/<id_pessoa>/<tipo_membro>', methods=['POST','GET'])
+def grupo_adicionar_amigo(id_grupo, id_pessoa, tipo_membro):
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = reload_conn()
+
+    cursor.execute(DB_GRUPO_ADICIONAR_MEMBRO, (id_grupo,id_pessoa,tipo_membro))
+    db.commit()
+
+    flash('Adicionado com Sucesso!')
+    return redirect(url_for('web_grupo',id_grupo=id_grupo))
+
+@app.route('/grupo/<id_grupo>/remover_membro/<id_pessoa>/', methods=['POST','GET'])
+def grupo_remover_amigo(id_grupo,id_pessoa):
+    if not session.get('logged_in'):
+        abort(401)
+    db, cursor = reload_conn()
+
+    cursor.execute(DB_GRUPO_REMOVER_MEMBRO, (id_grupo, id_pessoa))
+    db.commit()
+
+    flash('Removido com Sucesso!')
+    return redirect(url_for('web_grupo',id_grupo=id_grupo))
+
 @app.route('/grupos/<id_grupo>', methods=['GET', 'POST'])
 def web_grupo(id_grupo):
     """ Carrega detalhes, membros e postagens do grupo """
@@ -494,9 +518,9 @@ def web_grupo(id_grupo):
             membros_grupo = cursor.fetchall()
             membros_grupo = [list(x) for x in membros_grupo]
 
-    return render_template('gperfil.html', postagens_grupo=postagens_grupo, membros_grupo=membros_grupo, detalhes_grupo=detalhes_grupo)
+    return render_template('gperfil.html', postagens_grupo=postagens_grupo, membros_grupo=membros_grupo, detalhes_grupo=detalhes_grupo, id_grupo=id_grupo)
 
-@app.route('/grupo_add_postagem/<id_postagem>', methods=['GET', 'POST'])
+@app.route('/grupos/<id_grupo>/add_postagem/', methods=['GET', 'POST'])
 def grupo_add_postagem(id_grupo):
     if not session.get('logged_in'):
         abort(401)
@@ -534,7 +558,45 @@ def grupo_add_comentario(id_comentario):
 
 @app.route('/grupo_remover_comentario/<id_comentario>', methods=['GET', 'POST'])
 def grupo_remover_comentario(id_comentario):
-    pass
+    if not session.get('logged_in'):
+        abort(401)
+
+    db, cursor = reload_conn()
+    cursor.execute(DB_GRUPO_REMOVER_COMENTARIO, (id_comentario,))
+    db.commit()
+
+    flash('Removido com Sucesso!')
+    return redirect(url_for('homepage'))
+
+@app.route('/grupo/<id_grupo>/comentarios/<id_publicacao>', methods=['GET', 'POST'])
+def page_grupo_comentarios(idpublicacao):
+    """ Comentários de Cada Publicação """
+    _, cursor = reload_conn()
+
+    cursor.execute(DB_GRUPO_LISTAR_COMENTARIOS, (int(idpublicacao),))
+    comentarios = cursor.fetchall()
+    comentarios = [list(x) for x in comentarios]
+
+    cursor.execute(DB_GRUPO_PROCURAR_PUBLICACAO, (int(idpublicacao),))
+    publicacao = cursor.fetchall()
+    publicacao = [list(x) for x in publicacao]
+
+    return render_template('comentarios.html', comentarios=comentarios,publicacao=publicacao)
+
+
+@app.route('/grupo/<id_grupo>/solicitacoes', methods=['GET', 'POST'])
+def page_solicitacoes_grupo(id_grupo):
+    """ Parte dos Requisitos: Pagina que lista amigos da rede social """
+    _, cursor = reload_conn()
+
+    if session and session['logged_in']:
+        cursor.execute(DB_GRUPO_LISTAR_SOLICITACOES, (id_grupo,))
+        recebido = cursor.fetchall()
+        cursor.execute(DB_GRUPO_LISTAR_MEMBROS, (id_grupo,))
+        enviado = cursor.fetchall()
+    
+    
+    return render_template('g_solicitacoes.html', recebido=recebido, enviado=enviado)
 
 
 @app.route('/sobre', methods=['GET', 'POST'])

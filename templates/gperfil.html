@@ -17,24 +17,54 @@
     {% if session.logged_in %}
 
     {% if verificar_status_grupo(detalhes_grupo[0][0]) == 'Comum' %} <h3>Membro</h3>
-    <form action="" method=post class=add-entry>
+    <form action="{{ url_for('grupo_remover_amigo', id_grupo=id_grupo,id_pessoa=session['userid']) }}" method=post class=add-entry>
             <button type="submit" class="btn btn-sm btn-danger">Sair do Grupo</button></form>
                
 
     {% elif verificar_status_grupo(detalhes_grupo[0][0]) == 'Administrador' %} 
     <h3>Administrador</h1>
-      <form action="" method=post class=add-entry>
+      <form action="{{ url_for('grupo_remover_amigo', id_grupo=id_grupo, id_pessoa=session['userid']) }}"  method=post class=add-entry>
           <button type="submit" class="btn btn-sm btn-danger">Sair do Grupo</button></form>
       {% endif %}
 
     {% if not verificar_status_grupo(detalhes_grupo[0][0]) %}
     <h3>Não-Membro</h1>
-      <form action="" method=post class=add-entry>
-          <button type="submit" class="btn btn-sm btn-success">Solicitar Entrada</button></form>
+      <form action="{{ url_for('grupo_adicionar_amigo', id_grupo=id_grupo,id_pessoa=session['userid'],tipo_membro='Comum') }}" method=post class=add-entry>
+          <button type="submit" class="btn btn-sm btn-success">Participar</button></form>
     
     {% endif %}
     {% endif %}
 </div>
+
+{% if not verificar_status_grupo(detalhes_grupo[0][0]) %}
+<h3>Participe do Grupo para ver publicações e membros</h1>
+
+{% else %}
+
+{% if session.logged_in %}
+<div class="col-5">
+   
+    <form action="{{ url_for('grupo_add_postagem',id_grupo=id_grupo) }}" method=post class=add-entry>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Escreva uma postagem</label>
+            <textarea type="texto" class="form-control" name="text" rows="5" cols=40 placeholder="O Que você está pensando agora?"></textarea>
+        </div>
+    <div class="form-group">
+        <div class="form-row">
+                <div class="form-group col">
+                    <div class="form-group col">
+                    <button type="submit" class="btn btn-primary">Postar</button> </div></div>
+
+        </div>
+        </form>      
+    </div>
+    {% endif %}
+
+
+
+
+
+
 
 
 <div class="row-2">
@@ -55,7 +85,7 @@
     
     
         {% else %}
-    <li class="list-group-item"><em>Você não é membro do Grupo OU não há publicações aqui. </em>
+    <li class="list-group-item"><em>não há publicações aqui. </em>
     {% endfor %}
 
     </ul> 
@@ -80,6 +110,7 @@
 
 
 
+{% endif %}
 {% endif %}
 
     
